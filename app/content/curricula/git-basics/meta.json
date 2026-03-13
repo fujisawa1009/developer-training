@@ -1,0 +1,5 @@
+{
+  "name": "Git入門",
+  "description": "Gitの基本操作（clone・add・commit・push・branch・PR）を習得するコースです。",
+  "order": 1
+}

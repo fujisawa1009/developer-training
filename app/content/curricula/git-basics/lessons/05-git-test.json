@@ -1,0 +1,8 @@
+{
+  "title": "Git 実践課題",
+  "type": "assignment",
+  "order": 5,
+  "assignmentType": "git",
+  "description": "新しいブランチを作成し、README.mdを編集してPull Requestを作成してください。\n\n【手順】\n1. `feature/your-name` ブランチを作成\n2. README.md に自己紹介を追記\n3. コミット＆プッシュ\n4. Pull Requestを作成してURLを提出",
+  "deadline_days": 7
+}

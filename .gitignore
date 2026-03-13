@@ -1,0 +1,7 @@
+# env files
+.env
+.env.*
+!.env.example
+
+# Docker volumes (if mounted locally)
+postgres_data/

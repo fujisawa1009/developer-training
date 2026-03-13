@@ -1,0 +1,8 @@
+{
+  "title": "SQL 実践課題",
+  "type": "assignment",
+  "order": 3,
+  "assignmentType": "sql",
+  "description": "以下の3テーブルをJOINして、各ユーザーの合計注文金額と注文件数を取得するSQLを記述してください。\n\n【テーブル】\n- users（id, name, email）\n- orders（id, user_id, product_id, quantity）\n- products（id, name, price）\n\n【期待する出力】\nuser_name | total_amount | order_count\n\n回答はテキストフォームにSQLを貼り付けて提出してください。",
+  "deadline_days": 14
+}

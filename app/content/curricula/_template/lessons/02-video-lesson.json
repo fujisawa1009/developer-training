@@ -1,0 +1,7 @@
+{
+  "title": "動画レッスンタイトル",
+  "type": "video",
+  "order": 2,
+  "videoUrl": "https://www.youtube.com/watch?v=XXXXXXXXXXXX",
+  "description": "この動画で学ぶ内容の説明（任意）"
+}

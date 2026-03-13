@@ -1,0 +1,5 @@
+{
+  "name": "SQL入門",
+  "description": "SELECT・INSERT・UPDATE・DELETE の基本から、JOINを使った複数テーブル操作までを習得するコースです。",
+  "order": 2
+}
