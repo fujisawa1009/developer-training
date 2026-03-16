@@ -16,6 +16,8 @@ export default async function AdminLayout({
     redirect("/dashboard");
   }
 
+  const isAdmin = role === "admin";
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* サイドバー */}
@@ -37,10 +39,12 @@ export default async function AdminLayout({
             <ClipboardCheck className="w-4 h-4" />
             提出物管理
           </SidebarLink>
-          <SidebarLink href="/admin/users">
-            <Users className="w-4 h-4" />
-            ユーザー管理
-          </SidebarLink>
+          {isAdmin && (
+            <SidebarLink href="/admin/users">
+              <Users className="w-4 h-4" />
+              ユーザー管理
+            </SidebarLink>
+          )}
         </nav>
 
         <div className="p-3 border-t">
