@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button-variants";
-import { BookOpen, ClipboardList, Settings } from "lucide-react";
+import { BookOpen, ClipboardList, Settings, CheckCircle2, Lock } from "lucide-react";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -18,7 +18,18 @@ export default async function DashboardPage() {
         include: {
           curriculumPlan: {
             include: {
-              items: true,
+              items: {
+                include: {
+                  curriculum: {
+                    include: {
+                      lessons: {
+                        orderBy: { order: "asc" },
+                        include: { progresses: { where: { learnerId: session.user.id } } },
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
         },
@@ -28,6 +39,23 @@ export default async function DashboardPage() {
 
   const plans = userWithPlans?.curriculumPlans ?? [];
   const role = session.user.role;
+
+  // カリキュラム（コース）を集約：重複除去
+  const curriculaMap = new Map<string, { id: string; name: string; lessonCount: number; completedCount: number }>();
+  for (const { curriculumPlan } of plans) {
+    for (const item of curriculumPlan.items) {
+      if (item.curriculum && !curriculaMap.has(item.curriculum.id)) {
+        const completed = item.curriculum.lessons.filter((l) => l.progresses.length > 0).length;
+        curriculaMap.set(item.curriculum.id, {
+          id: item.curriculum.id,
+          name: item.curriculum.name,
+          lessonCount: item.curriculum.lessons.length,
+          completedCount: completed,
+        });
+      }
+    }
+  }
+  const curricula = Array.from(curriculaMap.values());
   const isAdmin = role === "admin" || role === "instructor";
 
   return (
@@ -65,9 +93,51 @@ export default async function DashboardPage() {
           </p>
         </div>
 
+        {/* 学習コンテンツ（カリキュラム） */}
+        {curricula.length > 0 && (
+          <div>
+            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+              <BookOpen className="w-5 h-5" />
+              学習コンテンツ
+            </h3>
+            <div className="grid gap-3">
+              {curricula.map((c) => {
+                const progress = c.lessonCount > 0 ? (c.completedCount / c.lessonCount) * 100 : 0;
+                return (
+                  <Link key={c.id} href={`/curricula/${c.id}`}>
+                    <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-base">{c.name}</CardTitle>
+                          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                            {c.completedCount === c.lessonCount && c.lessonCount > 0 ? (
+                              <CheckCircle2 className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <Lock className="w-4 h-4" />
+                            )}
+                            {c.completedCount} / {c.lessonCount} 完了
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-500 rounded-full transition-all"
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div>
           <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <BookOpen className="w-5 h-5" />
+            <ClipboardList className="w-5 h-5" />
             割り当てられたカリキュラムプラン
           </h3>
 

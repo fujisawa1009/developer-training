@@ -9,8 +9,21 @@ import type { FormState } from "../actions";
 type LessonType = "text" | "video" | "assignment";
 type AssignmentType = "git" | "sql" | "program" | "debug";
 
+type DefaultValues = {
+  title?: string;
+  slug?: string;
+  order?: number;
+  type?: LessonType;
+  body?: string | null;
+  videoUrl?: string | null;
+  assignmentType?: AssignmentType | null;
+  assignmentDescription?: string | null;
+};
+
 type Props = {
   action: (prevState: FormState, formData: FormData) => Promise<FormState>;
+  defaultValues?: DefaultValues;
+  submitLabel?: string;
 };
 
 const LESSON_TYPE_LABELS: Record<LessonType, string> = {
@@ -26,9 +39,9 @@ const ASSIGNMENT_TYPE_LABELS: Record<AssignmentType, string> = {
   debug: "デバッグ",
 };
 
-export function LessonForm({ action }: Props) {
+export function LessonForm({ action, defaultValues, submitLabel = "レッスンを追加" }: Props) {
   const [state, dispatch, isPending] = useActionState(action, null);
-  const [lessonType, setLessonType] = useState<LessonType>("text");
+  const [lessonType, setLessonType] = useState<LessonType>(defaultValues?.type ?? "text");
 
   return (
     <form action={dispatch} className="space-y-5">
@@ -72,6 +85,7 @@ export function LessonForm({ action }: Props) {
           id="title"
           name="title"
           required
+          defaultValue={defaultValues?.title ?? ""}
           placeholder="例: Gitとは何か"
           aria-invalid={!!state?.errors?.title}
         />
@@ -86,6 +100,7 @@ export function LessonForm({ action }: Props) {
           id="slug"
           name="slug"
           required
+          defaultValue={defaultValues?.slug ?? ""}
           placeholder="例: 01-what-is-git"
           aria-invalid={!!state?.errors?.slug}
         />
@@ -97,7 +112,14 @@ export function LessonForm({ action }: Props) {
 
       <div className="space-y-1.5">
         <Label htmlFor="order">表示順</Label>
-        <Input id="order" name="order" type="number" min="0" defaultValue="0" className="w-32" />
+        <Input
+          id="order"
+          name="order"
+          type="number"
+          min="0"
+          defaultValue={defaultValues?.order ?? 0}
+          className="w-32"
+        />
       </div>
 
       {/* テキストレッスン */}
@@ -108,6 +130,7 @@ export function LessonForm({ action }: Props) {
             id="body"
             name="body"
             rows={12}
+            defaultValue={defaultValues?.body ?? ""}
             placeholder="## 見出し&#10;&#10;本文をMarkdownで記述..."
             className="w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm font-mono outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors resize-y"
             aria-invalid={!!state?.errors?.body}
@@ -126,6 +149,7 @@ export function LessonForm({ action }: Props) {
             id="videoUrl"
             name="videoUrl"
             type="url"
+            defaultValue={defaultValues?.videoUrl ?? ""}
             placeholder="https://www.youtube.com/watch?v=..."
             aria-invalid={!!state?.errors?.videoUrl}
           />
@@ -143,6 +167,7 @@ export function LessonForm({ action }: Props) {
             <select
               id="assignmentType"
               name="assignmentType"
+              defaultValue={defaultValues?.assignmentType ?? "git"}
               className="w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors"
             >
               {(["git", "sql", "program", "debug"] as AssignmentType[]).map((t) => (
@@ -162,6 +187,7 @@ export function LessonForm({ action }: Props) {
               id="assignmentDescription"
               name="assignmentDescription"
               rows={6}
+              defaultValue={defaultValues?.assignmentDescription ?? ""}
               placeholder="課題の内容と要件を記述..."
               className="w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors resize-y"
               aria-invalid={!!state?.errors?.assignmentDescription}
@@ -176,7 +202,7 @@ export function LessonForm({ action }: Props) {
       )}
 
       <Button type="submit" disabled={isPending}>
-        {isPending ? "追加中..." : "レッスンを追加"}
+        {isPending ? "保存中..." : submitLabel}
       </Button>
     </form>
   );

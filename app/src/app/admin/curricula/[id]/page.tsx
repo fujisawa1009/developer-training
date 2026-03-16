@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, FileText, Film, ClipboardList, Pencil, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, FileText, Film, ClipboardList, Pencil, Plus, Trash2, SquarePen } from "lucide-react";
 import { deleteLesson } from "../actions";
 
 const LESSON_TYPE_ICONS = {
@@ -136,23 +136,32 @@ export default async function AdminCurriculumDetailPage({ params }: Props) {
                         {lesson.slug}
                       </td>
                       <td className="px-4 py-3 text-right">
-                        <form
-                          action={async () => {
-                            "use server";
-                            await deleteLesson(lesson.id, id);
-                          }}
-                        >
-                          <button
-                            type="submit"
-                            className={cn(
-                              buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                              "text-destructive hover:text-destructive"
-                            )}
-                            title="削除"
+                        <div className="flex items-center justify-end gap-1">
+                          <Link
+                            href={`/admin/curricula/${id}/lessons/${lesson.id}/edit`}
+                            className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
+                            title="編集"
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </form>
+                            <SquarePen className="w-4 h-4" />
+                          </Link>
+                          <form
+                            action={async () => {
+                              "use server";
+                              await deleteLesson(lesson.id, id);
+                            }}
+                          >
+                            <button
+                              type="submit"
+                              className={cn(
+                                buttonVariants({ variant: "ghost", size: "icon-sm" }),
+                                "text-destructive hover:text-destructive"
+                              )}
+                              title="削除"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </form>
+                        </div>
                       </td>
                     </tr>
                   );

@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, LayoutDashboard, Users } from "lucide-react";
+import { BookOpen, ClipboardCheck, LayoutDashboard, Users } from "lucide-react";
 
 export default async function AdminLayout({
   children,
@@ -32,6 +32,10 @@ export default async function AdminLayout({
           <SidebarLink href="/admin/curricula">
             <BookOpen className="w-4 h-4" />
             カリキュラム管理
+          </SidebarLink>
+          <SidebarLink href="/admin/submissions">
+            <ClipboardCheck className="w-4 h-4" />
+            提出物管理
           </SidebarLink>
           <SidebarLink href="/admin/users">
             <Users className="w-4 h-4" />

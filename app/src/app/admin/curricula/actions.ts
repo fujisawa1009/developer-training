@@ -187,6 +187,91 @@ export async function createLesson(
   redirect(`/admin/curricula/${curriculumId}`);
 }
 
+export async function updateLesson(
+  lessonId: string,
+  curriculumId: string,
+  prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const session = await requireAdminOrInstructor();
+
+  const parsed = lessonSchema.safeParse({
+    title: formData.get("title"),
+    slug: formData.get("slug"),
+    order: formData.get("order") || 0,
+    type: formData.get("type"),
+    body: formData.get("body") || undefined,
+    videoUrl: formData.get("videoUrl") || undefined,
+    assignmentDescription: formData.get("assignmentDescription") || undefined,
+    assignmentType: formData.get("assignmentType") || undefined,
+  });
+
+  if (!parsed.success) {
+    return { errors: parsed.error.flatten().fieldErrors as Record<string, string[]> };
+  }
+
+  const { type, title, slug, order, body, videoUrl, assignmentDescription, assignmentType } =
+    parsed.data;
+
+  const lesson = await prisma.lesson.findFirst({
+    where: { id: lessonId, curriculum: { tenantId: session.user.tenantId } },
+    include: { assignment: true },
+  });
+  if (!lesson) return { message: "レッスンが見つかりません" };
+
+  if (type === "assignment") {
+    if (!assignmentDescription || !assignmentType) {
+      return {
+        errors: {
+          assignmentDescription: assignmentDescription ? [] : ["課題説明は必須です"],
+          assignmentType: assignmentType ? [] : ["課題タイプは必須です"],
+        },
+      };
+    }
+    if (lesson.assignmentId) {
+      await prisma.assignment.update({
+        where: { id: lesson.assignmentId },
+        data: { title, type: assignmentType, description: assignmentDescription },
+      });
+    } else {
+      const assignment = await prisma.assignment.create({
+        data: {
+          tenantId: session.user.tenantId,
+          title,
+          type: assignmentType,
+          description: assignmentDescription,
+        },
+      });
+      await prisma.lesson.update({
+        where: { id: lessonId },
+        data: { title, slug, order, type: "assignment", assignmentId: assignment.id },
+      });
+      revalidatePath(`/admin/curricula/${curriculumId}`);
+      redirect(`/admin/curricula/${curriculumId}`);
+    }
+    await prisma.lesson.update({
+      where: { id: lessonId },
+      data: { title, slug, order, type: "assignment" },
+    });
+  } else if (type === "text") {
+    await prisma.lesson.update({
+      where: { id: lessonId },
+      data: { title, slug, order, type: "text", body: body ?? "", videoUrl: null, assignmentId: null },
+    });
+  } else {
+    if (!videoUrl) {
+      return { errors: { videoUrl: ["動画URLは必須です"] } };
+    }
+    await prisma.lesson.update({
+      where: { id: lessonId },
+      data: { title, slug, order, type: "video", videoUrl, body: null, assignmentId: null },
+    });
+  }
+
+  revalidatePath(`/admin/curricula/${curriculumId}`);
+  redirect(`/admin/curricula/${curriculumId}`);
+}
+
 export async function deleteLesson(lessonId: string, curriculumId: string) {
   const session = await requireAdminOrInstructor();
 

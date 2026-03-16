@@ -58,6 +58,7 @@ model User {
   selfEvaluations       LearnerChecklistItem[] @relation("selfEvaluator")
   instructorEvaluations LearnerChecklistItem[] @relation("instructorEvaluator")
   submissions           Submission[]
+  lessonProgresses      LessonProgress[]
 
   @@unique([tenantId, email])
 }
@@ -321,14 +322,15 @@ enum AssignmentType {
 }
 
 model Submission {
-  id           String           @id @default(cuid())
-  assignmentId String
-  learnerId    String
-  githubUrl    String?
-  textAnswer   String?
-  submitCount  Int              @default(1)
-  status       SubmissionStatus @default(submitted)
-  submittedAt  DateTime         @default(now())
+  id            String           @id @default(cuid())
+  assignmentId  String
+  learnerId     String
+  githubUrl     String?
+  textAnswer    String?
+  attemptNumber Int              @default(1)   // 何回目の提出か
+  startedAt     DateTime         @default(now()) // 開始時刻
+  submittedAt   DateTime?                        // 提出時刻（提出前はnull）
+  status        SubmissionStatus @default(draft)
 
   assignment Assignment @relation(fields: [assignmentId], references: [id])
   learner    User       @relation(fields: [learnerId], references: [id])
@@ -336,10 +338,10 @@ model Submission {
 }
 
 enum SubmissionStatus {
-  submitted
-  reviewing
-  completed
-  returned
+  draft     // 取り組み中（未提出）
+  submitted // 提出済み・採点待ち
+  passed    // 合格
+  failed    // 不合格（再提出必要）
 }
 
 model Review {
@@ -348,8 +350,8 @@ model Review {
   aiComment         String?
   aiScore           String?
   instructorComment String?
-  finalScore        String?
-  status            ReviewStatus @default(ai_pending)
+  passed            Boolean?     // 合格 = true / 不合格 = false
+  status            ReviewStatus @default(pending)
   reviewedBy        String?
   reviewedAt        DateTime?
 
@@ -357,9 +359,8 @@ model Review {
 }
 
 enum ReviewStatus {
-  ai_pending
-  instructor_reviewing
-  completed
+  pending   // 採点待ち
+  completed // 採点完了
 }
 
 // ─────────────────────────────────────────
@@ -414,6 +415,7 @@ model Lesson {
 
   curriculum Curriculum  @relation(fields: [curriculumId], references: [id])
   assignment Assignment? @relation(fields: [assignmentId], references: [id])
+  progresses LessonProgress[]
 
   @@unique([curriculumId, slug])
 }
@@ -422,4 +424,20 @@ enum LessonType {
   text        // Markdownテキスト
   video       // 外部動画リンク
   assignment  // 課題テスト
+}
+
+// ─────────────────────────────────────────
+// 受講者のレッスン進捗（テキスト/動画の完了 & 課題合格で更新）
+// ─────────────────────────────────────────
+
+model LessonProgress {
+  id          String   @id @default(cuid())
+  learnerId   String
+  lessonId    String
+  completedAt DateTime @default(now())
+
+  learner User   @relation(fields: [learnerId], references: [id])
+  lesson  Lesson @relation(fields: [lessonId], references: [id])
+
+  @@unique([learnerId, lessonId])
 }
