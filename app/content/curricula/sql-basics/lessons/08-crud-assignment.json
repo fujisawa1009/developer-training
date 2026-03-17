@@ -1,0 +1,8 @@
+{
+  "title": "CRUD基礎 課題",
+  "type": "assignment",
+  "order": 8,
+  "assignmentType": "sql",
+  "description": "以下のusersテーブルに対してSQLを記述してください。\n\n【テーブル定義】\nusers (id SERIAL, name VARCHAR(100), email VARCHAR(255), role VARCHAR(20), created_at TIMESTAMP)\n\n【問題】\n1. roleが'learner'のユーザーを名前の昇順で取得するSELECT文\n2. 新しいユーザー（name:'テスト太郎', email:'test@example.com', role:'learner'）を追加するINSERT文\n3. id=5のユーザーのroleを'instructor'に更新するUPDATE文\n4. created_atが2024年1月1日より前のユーザーを削除するDELETE文\n\n各SQLを順番にテキストフォームに記述して提出してください。",
+  "deadline_days": 7
+}

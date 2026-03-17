@@ -1,5 +1,5 @@
 {
   "name": "SQL入門",
-  "description": "SELECT・INSERT・UPDATE・DELETE の基本から、JOINを使った複数テーブル操作までを習得するコースです。",
-  "order": 2
+  "description": "データベースの基礎概念からSELECT・INSERT・UPDATE・DELETE、JOIN、サブクエリ、インデックスまでを体系的に習得するコースです。",
+  "order": 5
 }

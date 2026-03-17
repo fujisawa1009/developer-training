@@ -1,0 +1,8 @@
+{
+  "title": "SQL総合課題",
+  "type": "assignment",
+  "order": 20,
+  "assignmentType": "sql",
+  "description": "以下のテーブル定義を元に、各問題のSQLを記述してください。\n\n【テーブル定義】\n- users (id, name, email, role, department_id, created_at)\n- departments (id, name)\n- products (id, name, price, category, is_active)\n- orders (id, user_id, product_id, quantity, created_at)\n\n【問題】\n1. 部署ごとのユーザー数を多い順に表示（部署名付き、未所属ユーザーも「未所属」として集計）\n2. 商品カテゴリごとの売上合計（price × quantity）を算出し、売上が10万円以上のカテゴリのみ表示\n3. 注文回数が3回以上のユーザーの名前・メール・注文回数・合計金額を表示\n4. 過去30日以内に注文がないアクティブユーザー（role='learner'）の一覧を取得\n5. 各ユーザーの直近の注文日と注文金額を表示するSQL（注文がないユーザーも含む）\n\nヒント: LEFT JOIN, GROUP BY, HAVING, サブクエリ, COALESCE, CASE を適切に使い分けてください。",
+  "deadline_days": 14
+}
