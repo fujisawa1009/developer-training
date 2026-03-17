@@ -1,8 +1,0 @@
-{
-  "title": "JOIN実践 課題",
-  "type": "assignment",
-  "order": 13,
-  "assignmentType": "sql",
-  "description": "以下の3テーブルを使ってSQLを記述してください。\n\n【テーブル定義】\n- users (id, name, email, department_id)\n- departments (id, name)\n- orders (id, user_id, product_id, amount, created_at)\n\n【問題】\n1. 全ユーザーを部署名付きで一覧表示するSQL（部署未所属のユーザーも含む）\n2. ユーザーごとの注文合計金額を取得するSQL（注文がないユーザーは0として表示）\n3. 部署ごとの所属人数と注文合計金額を集計するSQL\n4. 注文が1件もないユーザーの名前とメールアドレスを取得するSQL\n\n使用するJOINの種類（INNER / LEFT）も適切に選択してください。",
-  "deadline_days": 10
-}

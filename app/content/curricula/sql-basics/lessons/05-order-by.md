@@ -73,4 +73,21 @@ SELECT * FROM users ORDER BY department_id ASC NULLS LAST;
 SELECT * FROM users ORDER BY department_id DESC NULLS FIRST;
 ```
 
+### OFFSET（読み飛ばし）
+
+```sql
+-- 11件目から20件目を取得（2ページ目）
+SELECT * FROM users
+ORDER BY id
+LIMIT 10 OFFSET 10;
+```
+
 > ポイント：`ORDER BY` を指定しないSELECTの結果は順序が保証されません。表示順が重要な場面では必ず `ORDER BY` をつけましょう
+
+---
+
+## 練習問題
+
+1. `products` テーブルから価格が高い順に上位5件を取得するSQLを書いてください。
+2. `users` テーブルから `role` の昇順、同じ `role` 内では `created_at` の降順（新しい順）で並び替えるSQLを書いてください。
+3. 1ページ20件表示で、4ページ目のデータを取得するには `LIMIT` と `OFFSET` にそれぞれ何を指定しますか？

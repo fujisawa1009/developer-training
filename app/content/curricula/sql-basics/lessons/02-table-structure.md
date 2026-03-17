@@ -34,12 +34,12 @@ order: 2
 
 | データ型 | 説明 | 例 |
 |---------|------|-----|
-| `INTEGER` | 整数 | 1, 42, -10 |
-| `VARCHAR(n)` | 可変長文字列（最大n文字） | 'yamada' |
+| `INTEGER` | 整数 | `1`, `42`, `-10` |
+| `VARCHAR(n)` | 可変長文字列（最大n文字） | `'yamada'` |
 | `TEXT` | 長い文字列 | 説明文など |
-| `BOOLEAN` | 真偽値 | true / false |
-| `TIMESTAMP` | 日時 | 2025-04-01 09:00:00 |
-| `DECIMAL(p,s)` | 精密な小数 | 1234.56 |
+| `BOOLEAN` | 真偽値 | `true` / `false` |
+| `TIMESTAMP` | 日時 | `2025-04-01 09:00:00` |
+| `DECIMAL(p,s)` | 精密な小数 | `1234.56` |
 
 ### 制約
 
@@ -47,10 +47,10 @@ order: 2
 
 ```sql
 CREATE TABLE users (
-  id       SERIAL PRIMARY KEY,       -- 主キー（自動採番）
-  name     VARCHAR(100) NOT NULL,    -- NULLを許可しない
-  email    VARCHAR(255) UNIQUE,      -- 重複を許可しない
-  role     VARCHAR(20) DEFAULT 'learner'  -- 初期値を設定
+  id       SERIAL PRIMARY KEY,           -- 主キー（自動採番）
+  name     VARCHAR(100) NOT NULL,        -- NULLを許可しない
+  email    VARCHAR(255) UNIQUE,          -- 重複を許可しない
+  role     VARCHAR(20) DEFAULT 'learner' -- 初期値を設定
 );
 ```
 
@@ -62,4 +62,30 @@ CREATE TABLE users (
 | `DEFAULT` | 値を指定しない場合の初期値 |
 | `FOREIGN KEY` | 他のテーブルの主キーを参照 |
 
+### テーブルの情報を確認する（psql）
+
+```sql
+-- テーブルの構造を確認
+\d users
+
+-- テーブル一覧を表示
+\dt
+```
+
 > ポイント：テーブル設計の段階で適切な制約をつけることが、データの品質を守る第一歩です
+
+---
+
+## 練習問題
+
+1. 以下のデータを管理するテーブルを設計してください。カラム名・データ型・制約を考えてみましょう。
+   - 商品（商品名、価格、カテゴリ、在庫数、販売開始日）
+2. `VARCHAR(100)` と `TEXT` の違いは何ですか？それぞれどのような場面で使い分けますか？
+3. 以下のCREATE TABLEに間違いがあります。問題点を指摘してください。
+   ```sql
+   CREATE TABLE products (
+     id INTEGER,
+     name TEXT,
+     price VARCHAR(10)
+   );
+   ```

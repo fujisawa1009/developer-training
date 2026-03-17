@@ -21,7 +21,8 @@ SELECT カラム名 FROM テーブル名;
 SELECT * FROM users;
 ```
 
-結果：
+実行結果：
+
 ```
  id │ name │ email              │ role
 ────┼──────┼────────────────────┼─────────
@@ -36,7 +37,8 @@ SELECT * FROM users;
 SELECT name, email FROM users;
 ```
 
-結果：
+実行結果：
+
 ```
  name │ email
 ──────┼────────────────────
@@ -61,7 +63,8 @@ FROM users;
 SELECT DISTINCT role FROM users;
 ```
 
-結果：
+実行結果：
+
 ```
  role
 ─────────
@@ -76,4 +79,27 @@ SELECT DISTINCT role FROM users;
 SELECT * FROM users LIMIT 5;
 ```
 
+### SELECT文の実行順序
+
+SQL文の書く順序と実行順序は異なります。
+
+```sql
+SELECT name, role   -- ③ 出力するカラムを選択
+FROM users          -- ① テーブルからデータを取得
+WHERE role = 'learner'  -- ② 条件で絞り込み
+ORDER BY name       -- ④ 並び替え
+LIMIT 10;           -- ⑤ 件数制限
+```
+
 > ポイント：`SELECT *` は開発時の確認に便利ですが、本番コードでは必要なカラムだけ指定しましょう。不要なデータの転送を避けられます
+
+---
+
+## 練習問題
+
+1. 以下のSQLの実行結果を予想してください。
+   ```sql
+   SELECT DISTINCT role FROM users ORDER BY role;
+   ```
+2. `users` テーブルから `name` と `email` だけを取得し、`名前` と `メール` という別名をつけるSELECT文を書いてください。
+3. `SELECT *` を本番コードで使うべきでない理由を2つ挙げてください。

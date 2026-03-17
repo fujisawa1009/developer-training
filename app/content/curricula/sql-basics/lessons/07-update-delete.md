@@ -33,7 +33,7 @@ WHERE id = 3;
 ### WHEREを忘れると全件更新される
 
 ```sql
--- 危険！全ユーザーのroleがlearnerになる
+-- ⚠️ 危険！全ユーザーのroleがlearnerになる
 UPDATE users SET role = 'learner';
 ```
 
@@ -64,7 +64,7 @@ DELETE FROM users WHERE role = 'learner' AND department_id IS NULL;
 ### WHEREを忘れると全件削除される
 
 ```sql
--- 危険！全データが消える
+-- ⚠️ 危険！全データが消える
 DELETE FROM users;
 ```
 
@@ -72,7 +72,7 @@ DELETE FROM users;
 
 ## 安全に実行するための手順
 
-UPDATE / DELETE を実行する前に必ず以下の手順を踏みましょう。
+UPDATE / DELETE を実行する前に、必ず以下の手順を踏みましょう。
 
 ### 1. まずSELECTで対象を確認
 
@@ -95,4 +95,23 @@ COMMIT;    -- 問題なければ確定
 -- ROLLBACK; -- 間違えた場合は取り消し
 ```
 
+### 3. 影響行数を確認する
+
+UPDATE / DELETE を実行すると、PostgreSQLは影響を受けた行数を表示します。
+
+```
+UPDATE 1   ← 1行だけ更新された（想定通り）
+UPDATE 100 ← 100行も更新された（意図した？）
+```
+
+想定と異なる行数が表示された場合、すぐに `ROLLBACK` で取り消しましょう。
+
 > ポイント：UPDATE / DELETE は**WHERE句を必ずつける**ことを徹底しましょう。本番DBでWHERE無しのUPDATE/DELETEを実行すると取り返しがつきません
+
+---
+
+## 練習問題
+
+1. `users` テーブルで `id = 5` のユーザーのメールアドレスを `new@example.com` に変更するSQLを書いてください。
+2. `orders` テーブルから、`created_at` が `2024-01-01` より前のレコードを削除するSQLを書いてください。
+3. UPDATE/DELETEを実行する前に「まずSELECTで確認」「トランザクションで囲む」べき理由をそれぞれ説明してください。

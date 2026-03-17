@@ -49,6 +49,18 @@ SELECT * FROM users
 WHERE role = 'admin' OR role = 'instructor';
 ```
 
+### NOT（条件の否定）
+
+```sql
+-- learner でないユーザー
+SELECT * FROM users
+WHERE NOT role = 'learner';
+
+-- 複合条件の否定
+SELECT * FROM products
+WHERE NOT (price >= 1000 AND category = '書籍');
+```
+
 ### NULLの判定
 
 NULLの比較には `=` ではなく `IS NULL` / `IS NOT NULL` を使います。
@@ -60,6 +72,18 @@ SELECT * FROM users WHERE department_id IS NULL;
 -- NULLでないデータを取得
 SELECT * FROM users WHERE department_id IS NOT NULL;
 ```
+
+**なぜ `= NULL` ではダメなのか：**
+
+```sql
+-- ❌ これは正しく動作しない（結果は常に空）
+SELECT * FROM users WHERE department_id = NULL;
+
+-- ✅ 正しい書き方
+SELECT * FROM users WHERE department_id IS NULL;
+```
+
+`NULL` は「値が存在しない」という意味であり、`NULL = NULL` の結果は `TRUE` ではなく `NULL`（不明）になります。
 
 ### LIKE（部分一致）
 
@@ -85,6 +109,10 @@ SELECT * FROM users WHERE name LIKE '%子';
 -- ORを複数書く代わりにINが使える
 SELECT * FROM users
 WHERE role IN ('admin', 'instructor');
+
+-- 上記は以下と同じ意味
+SELECT * FROM users
+WHERE role = 'admin' OR role = 'instructor';
 ```
 
 ### BETWEEN（範囲指定）
@@ -96,3 +124,14 @@ WHERE price BETWEEN 1000 AND 5000;
 ```
 
 > ポイント：`NULL = NULL` は `TRUE` にならず `NULL` になります。NULLの比較は必ず `IS NULL` を使いましょう
+
+---
+
+## 練習問題
+
+1. `products` テーブルから、価格が 500円以上 3000円以下で、カテゴリが「文房具」の商品を取得するSQLを書いてください。
+2. 以下のSQLにはバグがあります。正しく書き直してください。
+   ```sql
+   SELECT * FROM users WHERE department_id = NULL;
+   ```
+3. `LIKE '%田%'` と `LIKE '_田%'` の違いを説明してください。どのような名前がそれぞれにマッチしますか？
