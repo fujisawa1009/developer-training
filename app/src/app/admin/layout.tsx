@@ -1,8 +1,9 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, ClipboardCheck, ClipboardList, LayoutDashboard, Users } from "lucide-react";
+import { BookOpen, ClipboardCheck, ClipboardList, LayoutDashboard, Users, Target, BarChart2 } from "lucide-react";
 import { LogoutButton } from "@/components/LogoutButton";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export default async function AdminLayout({
   children,
@@ -24,9 +25,12 @@ export default async function AdminLayout({
       {/* サイドバー */}
       <aside className="w-60 bg-white border-r flex flex-col shrink-0">
         <div className="p-4 border-b">
-          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-1">
-            管理画面
-          </p>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+              管理画面
+            </p>
+            <NotificationBell userId={session.user.id} />
+          </div>
           <p className="text-sm font-semibold truncate">{session.user.name}</p>
           <p className="text-xs text-muted-foreground truncate">{session.user.email}</p>
         </div>
@@ -43,6 +47,14 @@ export default async function AdminLayout({
           <SidebarLink href="/admin/submissions">
             <ClipboardCheck className="w-4 h-4" />
             提出物管理
+          </SidebarLink>
+          <SidebarLink href="/admin/evaluation-periods">
+            <Target className="w-4 h-4" />
+            評価管理
+          </SidebarLink>
+          <SidebarLink href="/admin/reports">
+            <BarChart2 className="w-4 h-4" />
+            レポート
           </SidebarLink>
           {isAdmin && (
             <SidebarLink href="/admin/users">

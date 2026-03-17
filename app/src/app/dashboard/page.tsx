@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button-variants";
-import { BookOpen, ClipboardList, Settings, CheckCircle2, Lock } from "lucide-react";
+import { BookOpen, ClipboardList, Settings, CheckCircle2, Lock, Target } from "lucide-react";
 import { LogoutButton } from "@/components/LogoutButton";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -59,6 +60,23 @@ export default async function DashboardPage() {
   const curricula = Array.from(curriculaMap.values());
   const isAdmin = role === "admin" || role === "instructor";
 
+  // 受講者の場合: 進行中の評価タイミングを取得
+  const activePeriods =
+    role === "learner"
+      ? await prisma.evaluationPeriod.findMany({
+          where: { tenantId: session.user.tenantId },
+          orderBy: { startedAt: "desc" },
+          take: 5,
+        })
+      : [];
+
+  const PERIOD_TYPE_LABELS: Record<string, string> = {
+    month_1: "1ヶ月評価",
+    month_3: "3ヶ月評価",
+    month_6: "6ヶ月評価",
+    month_12: "12ヶ月評価",
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* ヘッダー */}
@@ -81,6 +99,7 @@ export default async function DashboardPage() {
                 管理画面
               </Link>
             )}
+            <NotificationBell userId={session.user.id} />
             <LogoutButton />
           </div>
         </div>
@@ -94,6 +113,37 @@ export default async function DashboardPage() {
             こんにちは、{session.user.name} さん
           </p>
         </div>
+
+        {/* 評価タイミング（受講者のみ） */}
+        {activePeriods.length > 0 && (
+          <div>
+            <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+              <Target className="w-5 h-5" />
+              自己評価
+            </h3>
+            <div className="grid gap-3">
+              {activePeriods.map((period) => (
+                <Link key={period.id} href={`/checklists/${period.id}`}>
+                  <Card className="hover:shadow-md transition-shadow cursor-pointer border-blue-200">
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-base">
+                          {PERIOD_TYPE_LABELS[period.type]} - 自己評価
+                        </CardTitle>
+                        <Badge variant="outline" className="text-blue-700 border-blue-300">
+                          入力する →
+                        </Badge>
+                      </div>
+                      <CardDescription>
+                        開始: {new Date(period.startedAt).toLocaleDateString("ja-JP")}
+                      </CardDescription>
+                    </CardHeader>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* 学習コンテンツ（カリキュラム） */}
         {curricula.length > 0 && (

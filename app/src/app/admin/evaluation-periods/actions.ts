@@ -4,7 +4,8 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import type { EvaluationPeriodType } from "@/generated/prisma";
+import type { EvaluationPeriodType } from "@/generated/prisma/client";
+import { createNotificationForMany } from "@/lib/notifications";
 
 async function requireAdmin() {
   const session = await auth();
@@ -36,7 +37,20 @@ export async function createEvaluationPeriod(
     },
   });
 
-  // STEP 2 で通知を追加予定
+  // 同テナントの全受講者に通知
+  const learners = await prisma.user.findMany({
+    where: { tenantId: session.user.tenantId, role: "learner" },
+    select: { id: true },
+  });
+  const LABELS: Record<string, string> = {
+    month_1: "1ヶ月", month_3: "3ヶ月", month_6: "6ヶ月", month_12: "12ヶ月",
+  };
+  await createNotificationForMany(
+    learners.map((l) => l.id),
+    "evaluation_period_started",
+    `${LABELS[type]}評価が始まりました。自己評価を入力してください`,
+    `/checklists/${period.id}`
+  );
 
   revalidatePath("/admin/evaluation-periods");
   redirect(`/admin/evaluation-periods/${period.id}`);

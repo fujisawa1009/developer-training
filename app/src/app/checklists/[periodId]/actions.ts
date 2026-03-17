@@ -3,7 +3,8 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import type { Rating } from "@/generated/prisma";
+import type { Rating } from "@/generated/prisma/client";
+import { createNotificationForMany } from "@/lib/notifications";
 
 async function requireLearner() {
   const session = await auth();
@@ -86,7 +87,23 @@ export async function saveSelfEvaluations(
     )
   );
 
-  // STEP 2 で担当講師への通知を追加予定
+  // 担当講師に通知
+  const instructors = await prisma.instructorLearner.findMany({
+    where: { learnerId: session.user.id },
+    select: { instructorId: true },
+  });
+  const learner = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { name: true },
+  });
+  if (instructors.length > 0 && learner) {
+    await createNotificationForMany(
+      instructors.map((i) => i.instructorId),
+      "self_evaluation_completed",
+      `${learner.name} さんが自己評価を入力しました。評価を入力してください`,
+      `/admin/evaluation-periods/${periodId}/learners/${session.user.id}`
+    );
+  }
 
   revalidatePath(`/checklists/${periodId}`);
   return { success: true };
