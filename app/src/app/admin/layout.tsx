@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, ClipboardCheck, ClipboardList, LayoutDashboard, Users, Target, BarChart2 } from "lucide-react";
+import { BookOpen, ClipboardCheck, ClipboardList, LayoutDashboard, Users, Target, BarChart2, List } from "lucide-react";
 import { LogoutButton } from "@/components/LogoutButton";
 import { NotificationBell } from "@/components/NotificationBell";
 
@@ -43,6 +43,10 @@ export default async function AdminLayout({
           <SidebarLink href="/admin/curriculum-plans">
             <ClipboardList className="w-4 h-4" />
             カリキュラムプラン
+          </SidebarLink>
+          <SidebarLink href="/admin/checklists">
+            <List className="w-4 h-4" />
+            チェックリスト管理
           </SidebarLink>
           <SidebarLink href="/admin/submissions">
             <ClipboardCheck className="w-4 h-4" />
