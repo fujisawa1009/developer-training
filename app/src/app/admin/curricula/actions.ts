@@ -284,3 +284,47 @@ export async function deleteLesson(lessonId: string, curriculumId: string) {
 
   revalidatePath(`/admin/curricula/${curriculumId}`);
 }
+
+// ─────────────────────────────────────────
+// カリキュラム一括作成（8カテゴリ分のテンプレート）
+// ─────────────────────────────────────────
+
+const CURRICULUM_TEMPLATES = [
+  { name: "社会人基礎", slug: "social-basics", description: "挨拶・報連相・メール・セキュリティなど社会人として必要な基礎スキル", order: 1 },
+  { name: "IT基礎", slug: "it-basics", description: "PC操作・ターミナル・ネットワーク・HTTP・APIなどIT全般の基礎知識", order: 2 },
+  { name: "Git", slug: "git", description: "git clone / add / commit / push / branchなどバージョン管理の基本操作", order: 3 },
+  { name: "プログラミング基礎", slug: "programming-basics", description: "変数・条件分岐・ループ・関数・クラス・デバッグなどプログラミング全般の基礎", order: 4 },
+  { name: "DB", slug: "database", description: "SQL基本構文・SELECT / INSERT / UPDATE / DELETE・JOINなどデータベース操作", order: 5 },
+  { name: "Web開発", slug: "web-development", description: "MVC・ルーティング・フォーム処理・API呼び出し・認証など Web アプリ開発の基礎", order: 6 },
+  { name: "インフラ・環境構築", slug: "infrastructure", description: "WSL・Docker・docker compose・.env・デプロイなどインフラ/環境構築の基礎", order: 7 },
+  { name: "開発プロセス", slug: "development-process", description: "要件理解・仕様書確認・工数見積・タスク分解・テスト確認など開発の進め方", order: 8 },
+] as const;
+
+export async function bulkCreateCurricula(): Promise<FormState> {
+  const session = await requireAdminOrInstructor();
+
+  const existing = await prisma.curriculum.findMany({
+    where: { tenantId: session.user.tenantId },
+    select: { slug: true },
+  });
+  const existingSlugs = new Set(existing.map((c) => c.slug));
+
+  const toCreate = CURRICULUM_TEMPLATES.filter((t) => !existingSlugs.has(t.slug));
+
+  if (toCreate.length === 0) {
+    return { message: "すべてのテンプレートカリキュラムはすでに存在します" };
+  }
+
+  await prisma.curriculum.createMany({
+    data: toCreate.map((t) => ({
+      tenantId: session.user.tenantId,
+      name: t.name,
+      slug: t.slug,
+      description: t.description,
+      order: t.order,
+    })),
+  });
+
+  revalidatePath("/admin/curricula");
+  redirect("/admin/curricula");
+}

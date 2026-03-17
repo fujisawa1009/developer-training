@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Pencil, Plus } from "lucide-react";
+import { BulkCreateButton } from "./_components/BulkCreateButton";
 
 export default async function AdminCurriculaPage() {
   const session = await auth();
@@ -22,10 +23,13 @@ export default async function AdminCurriculaPage() {
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">カリキュラム管理</h1>
-        <Link href="/admin/curricula/new" className={cn(buttonVariants())}>
-          <Plus className="w-4 h-4 mr-1.5" />
-          新規作成
-        </Link>
+        <div className="flex items-center gap-2">
+          <BulkCreateButton />
+          <Link href="/admin/curricula/new" className={cn(buttonVariants())}>
+            <Plus className="w-4 h-4 mr-1.5" />
+            新規作成
+          </Link>
+        </div>
       </div>
 
       {curricula.length === 0 ? (

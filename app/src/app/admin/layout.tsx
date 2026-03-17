@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { BookOpen, ClipboardCheck, ClipboardList, LayoutDashboard, Users } from "lucide-react";
+import { LogoutButton } from "@/components/LogoutButton";
 
 export default async function AdminLayout({
   children,
@@ -51,11 +52,14 @@ export default async function AdminLayout({
           )}
         </nav>
 
-        <div className="p-3 border-t">
+        <div className="p-3 border-t space-y-0.5">
           <SidebarLink href="/dashboard" muted>
             <LayoutDashboard className="w-4 h-4" />
             受講者画面へ
           </SidebarLink>
+          <div className="px-3 py-2">
+            <LogoutButton />
+          </div>
         </div>
       </aside>
 

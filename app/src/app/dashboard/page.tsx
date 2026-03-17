@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { BookOpen, ClipboardList, Settings, CheckCircle2, Lock } from "lucide-react";
+import { LogoutButton } from "@/components/LogoutButton";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -80,6 +81,7 @@ export default async function DashboardPage() {
                 管理画面
               </Link>
             )}
+            <LogoutButton />
           </div>
         </div>
       </header>
