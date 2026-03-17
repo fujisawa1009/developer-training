@@ -2,14 +2,13 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Pencil, Trash2, BookOpen, Users } from "lucide-react";
+import { ArrowLeft, Pencil, BookOpen, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button-variants";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { AddCurriculumForm } from "./_components/AddCurriculumForm";
 import { DeletePlanButton } from "./_components/DeletePlanButton";
-import { removeCurriculumFromPlan } from "../actions";
+import { SortableCurriculumItemTable } from "./_components/SortableCurriculumItemTable";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -94,52 +93,17 @@ export default async function CurriculumPlanDetailPage({ params }: Props) {
             カリキュラムが追加されていません。下のフォームから追加してください。
           </div>
         ) : (
-          <div className="rounded-lg border bg-white overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-gray-50">
-                  <th className="px-4 py-2.5 text-left font-medium text-muted-foreground w-12">順</th>
-                  <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">カリキュラム名</th>
-                  <th className="px-4 py-2.5 text-left font-medium text-muted-foreground">レッスン数</th>
-                  <th className="px-4 py-2.5 text-right font-medium text-muted-foreground">操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                {plan.items
-                  .filter((i) => i.curriculum)
-                  .map((item) => (
-                    <tr key={item.id} className="border-b last:border-0 hover:bg-gray-50">
-                      <td className="px-4 py-3 text-muted-foreground">{item.order}</td>
-                      <td className="px-4 py-3 font-medium">{item.curriculum!.name}</td>
-                      <td className="px-4 py-3">
-                        <Badge variant="secondary">
-                          {item.curriculum!.lessons.length} レッスン
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <form
-                          action={async () => {
-                            "use server";
-                            await removeCurriculumFromPlan(item.id, id);
-                          }}
-                        >
-                          <button
-                            type="submit"
-                            className={cn(
-                              buttonVariants({ variant: "ghost", size: "icon-sm" }),
-                              "text-destructive hover:text-destructive"
-                            )}
-                            title="プランから削除"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </form>
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
+          <SortableCurriculumItemTable
+            planId={id}
+            initialItems={plan.items
+              .filter((i) => i.curriculum)
+              .map((item) => ({
+                id: item.id,
+                order: item.order,
+                curriculumName: item.curriculum!.name,
+                lessonCount: item.curriculum!.lessons.length,
+              }))}
+          />
         )}
 
         {/* カリキュラム追加フォーム */}

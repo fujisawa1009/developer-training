@@ -148,6 +148,30 @@ export async function removeCurriculumFromPlan(
 }
 
 // ─────────────────────────────────────────
+// プラン内アイテム並び替え
+// ─────────────────────────────────────────
+
+export async function reorderCurriculumItems(planId: string, orderedIds: string[]) {
+  const session = await requireAdminOrInstructor();
+
+  const plan = await prisma.curriculumPlan.findFirst({
+    where: { id: planId, tenantId: session.user.tenantId },
+  });
+  if (!plan) throw new Error("プランが見つかりません");
+
+  await prisma.$transaction(
+    orderedIds.map((id, index) =>
+      prisma.curriculumItem.update({
+        where: { id },
+        data: { order: index + 1 },
+      }),
+    ),
+  );
+
+  revalidatePath(`/admin/curriculum-plans/${planId}`);
+}
+
+// ─────────────────────────────────────────
 // ユーザーへのプラン割り当て/解除
 // ─────────────────────────────────────────
 

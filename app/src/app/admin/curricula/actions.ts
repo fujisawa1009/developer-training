@@ -286,6 +286,30 @@ export async function deleteLesson(lessonId: string, curriculumId: string) {
 }
 
 // ─────────────────────────────────────────
+// レッスン並び替え
+// ─────────────────────────────────────────
+
+export async function reorderLessons(curriculumId: string, orderedIds: string[]) {
+  const session = await requireAdminOrInstructor();
+
+  const curriculum = await prisma.curriculum.findFirst({
+    where: { id: curriculumId, tenantId: session.user.tenantId },
+  });
+  if (!curriculum) throw new Error("カリキュラムが見つかりません");
+
+  await prisma.$transaction(
+    orderedIds.map((id, index) =>
+      prisma.lesson.update({
+        where: { id },
+        data: { order: index + 1 },
+      }),
+    ),
+  );
+
+  revalidatePath(`/admin/curricula/${curriculumId}`);
+}
+
+// ─────────────────────────────────────────
 // カリキュラム一括作成（8カテゴリ分のテンプレート）
 // ─────────────────────────────────────────
 

@@ -4,7 +4,9 @@
       "Bash(npx next build:*)",
       "Bash(docker compose:*)",
       "Bash(curl:*)",
-      "Bash(docker exec:*)"
+      "Bash(docker exec:*)",
+      "Bash(npm install:*)",
+      "Bash(docker kill:*)"
     ]
   }
 }
