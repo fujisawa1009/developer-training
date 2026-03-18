@@ -72,6 +72,11 @@ docker compose exec app npm run seed
 
 # カリキュラムのコンテンツ（レッスン）を投入
 docker compose exec app npm run import-content
+
+# デモ用進捗データを投入（import-content の後に実行）
+docker compose exec app npm run seed:demo
+
+
 ```
 
 ### 5. 動作確認
@@ -103,12 +108,14 @@ docker compose down -v
 docker compose up -d
 docker compose exec app npm run seed
 docker compose exec app npm run import-content
+docker compose exec app npm run seed:demo
 
 # package.json を変更した場合（イメージ再ビルドが必要）
 docker compose down -v
 docker compose up -d --build
 docker compose exec app npm run seed
 docker compose exec app npm run import-content
+docker compose exec app npm run seed:demo
 ```
 
 ### カリキュラムコンテンツのみ更新
