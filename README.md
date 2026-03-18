@@ -6,8 +6,14 @@
 
 
 ログイン情報a                         
+```
 http://localhost:3000/login
+```
 
+seed実行
+```
+cd app && npx tsx --env-file=.env prisma/seed.ts
+```
 
   ┌────────┬────────────────────────┬─────────────────┐                                 
   │ ロール │     メールアドレス     │   パスワード    │
