@@ -6,9 +6,10 @@ import { seedCurriculumPlan } from "./seeds/03-curriculum-plan";
 async function main() {
   console.log("🌱 シードデータを投入します...\n");
 
-  const { tenant, learner } = await seedTenantAndUsers();
+  const { tenant, learner, additionalLearners } = await seedTenantAndUsers();
   const { createdCategories } = await seedChecklist(tenant.id);
-  await seedCurriculumPlan(tenant.id, learner.id, createdCategories);
+  const allLearnerIds = [learner.id, ...additionalLearners.map((l) => l.id)];
+  await seedCurriculumPlan(tenant.id, allLearnerIds, createdCategories);
 
   console.log("\n🎉 シード完了！");
 }

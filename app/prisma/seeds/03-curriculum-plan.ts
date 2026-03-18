@@ -2,7 +2,7 @@ import { prisma } from "./_client";
 
 export async function seedCurriculumPlan(
   tenantId: string,
-  learnerId: string,
+  learnerIds: string[],
   categories: { id: string; name: string }[],
 ) {
   // カリキュラムプラン作成
@@ -23,14 +23,15 @@ export async function seedCurriculumPlan(
   console.log(`✅ カリキュラムプラン: ${plan.name}`);
 
   // 受講者にプランを割り当て
-  await prisma.userCurriculumPlan.create({
-    data: {
-      userId: learnerId,
-      curriculumPlanId: plan.id,
-    },
-  });
+  for (const learnerId of learnerIds) {
+    await prisma.userCurriculumPlan.upsert({
+      where: { userId_curriculumPlanId: { userId: learnerId, curriculumPlanId: plan.id } },
+      update: {},
+      create: { userId: learnerId, curriculumPlanId: plan.id },
+    });
+  }
 
-  console.log(`✅ 受講者にプランを割り当て`);
+  console.log(`✅ 受講者にプランを割り当て（${learnerIds.length}名）`);
 
   // 課題サンプル
   await prisma.assignment.createMany({
