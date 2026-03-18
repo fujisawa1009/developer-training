@@ -21,7 +21,7 @@ services:
       context: ./app
       dockerfile: Dockerfile.dev
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       DATABASE_URL: postgresql://devtraining:devtraining@db:5432/devtraining
       AUTH_SECRET: change-me-in-production-use-openssl-rand-base64-32

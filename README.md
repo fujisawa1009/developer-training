@@ -1,63 +1,162 @@
-  開発サーバーを起動
-```
-  cd app
-  npm run dev
-```
+# 新卒エンジニア研修プラットフォーム
 
+チェックリスト・カリキュラム・課題提出を一元管理する社内研修システムです。
 
-ログイン情報a                         
-```
-http://localhost:3000/login
-```
+---
 
-seed実行
-```
-  # パッケージ変更があった場合（--build と -v を両方つける）                       
-  docker compose down -v                                                           
-  docker compose up -d --build
-  docker compose exec app npm run seed
-  docker compose exec app npm run import-content
+## ログイン情報（初期アカウント）
 
-  # 通常のDBリセット
-  docker compose down -v
-  docker compose up -d
-  docker compose exec app npm run seed
-  docker compose exec app npm run import-content
+seed 実行後に以下のアカウントが作成されます。
+
+| ロール | メールアドレス | パスワード |
+|--------|---------------|----------|
+| 管理者 | admin@example.com | Admin1234! |
+| 講師 | instructor@example.com | Instructor1234! |
+| 受講者 | learner@example.com | Learner1234! |
+
+---
+
+## 検証環境のセットアップ
+
+### 検証環境でポート確認
+```
+docker ps --format "table {{.Names}}\t{{.Ports}}"
 ```
 
-  ┌────────┬────────────────────────┬─────────────────┐                                 
-  │ ロール │     メールアドレス     │   パスワード    │
-  ├────────┼────────────────────────┼─────────────────┤                                 
-  │ 管理者 │ admin@example.com      │ Admin1234!      │                               
-  ├────────┼────────────────────────┼─────────────────┤
-  │ 講師   │ instructor@example.com │ Instructor1234! │
-  ├────────┼────────────────────────┼─────────────────┤
-  │ 受講者 │ learner@example.com    │ Learner1234!    │
-  └────────┴────────────────────────┴─────────────────┘
+### 前提条件
 
+- Docker 24 以上
+- Docker Compose v2 以上
+- Git
+
+### 1. リポジトリのクローン
+
+```bash
+git clone <リポジトリURL>
+cd developer-training
 ```
-  # 起動（開発）
-  docker compose up -d
 
-  # ログ確認
-  docker compose logs app -f
+### 2. 環境変数の設定
 
-  # シードデータ投入
-  docker compose exec app npx tsx --env-file=.env prisma/seed.ts
+```bash
+cp app/.env.example app/.env
+```
 
-  # マイグレーション（スキーマ変更後）
-  docker compose exec app npx prisma migrate dev --name 変更内容
+`app/.env` を編集します。
 
-  # 停止
-  docker compose down
+```env
+DATABASE_URL=postgresql://devtraining:devtraining@db:5432/devtraining
+AUTH_SECRET=<openssl rand -base64 32 で生成した値>
+AUTH_URL=http://<サーバーのIPまたはドメイン>:3001
+```
 
-  # コンテンツインポート（カリキュラムのmdファイル → DB）
-  docker compose exec app npx tsx --env-file=.env content/import.ts
+`AUTH_SECRET` の生成:
 
-  # 本番起動（.env に本番用変数を設定してから）
-  docker compose -f docker-compose.prod.yml up -d
+```bash
+openssl rand -base64 32
+```
 
-  ```
+### 3. 起動
+
+```bash
+docker compose up -d --build
+```
+
+初回起動時にDBマイグレーションが自動実行されます。
+
+### 4. 初期データの投入
+
+```bash
+# テナント・ユーザー・チェックリスト・カリキュラムプランを投入
+docker compose exec app npm run seed
+
+# カリキュラムのコンテンツ（レッスン）を投入
+docker compose exec app npm run import-content
+```
+
+### 5. 動作確認
+
+ブラウザで `http://<サーバーのIP>:3001` にアクセスしてください。
+
+---
+
+## 運用コマンド
+
+```bash
+# 通常の再起動
+docker compose restart
+
+# ログ確認
+docker compose logs -f app
+
+# 停止
+docker compose down
+```
+
+### DBリセットとデータ再投入
+
+**※ すべてのデータが削除されます。**
+
+```bash
+# 通常のリセット
+docker compose down -v
+docker compose up -d
+docker compose exec app npm run seed
+docker compose exec app npm run import-content
+
+# package.json を変更した場合（イメージ再ビルドが必要）
+docker compose down -v
+docker compose up -d --build
+docker compose exec app npm run seed
+docker compose exec app npm run import-content
+```
+
+### カリキュラムコンテンツのみ更新
+
+`content/` 以下のファイルを編集後:
+
+```bash
+docker compose exec app npm run import-content
+```
+
+### マイグレーション（スキーマ変更後）
+
+```bash
+docker compose exec app npx prisma migrate dev --name <変更内容>
+```
+
+---
+
+## 本番環境のセットアップ
+
+### 1. 環境変数の設定
+
+プロジェクトルートに `.env` を作成します（`docker-compose.prod.yml` が参照します）。
+
+```env
+POSTGRES_USER=<任意のユーザー名>
+POSTGRES_PASSWORD=<強力なパスワード>
+POSTGRES_DB=<任意のDB名>
+AUTH_SECRET=<openssl rand -base64 32 で生成した値>
+AUTH_URL=https://<本番ドメイン>
+```
+
+### 2. 起動
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+### 3. 初期データの投入
+
+```bash
+docker compose -f docker-compose.prod.yml exec app npm run seed
+docker compose -f docker-compose.prod.yml exec app npm run import-content
+```
+
+> **注意:** 本番環境では初期パスワードを必ず変更してください。
+
+---
 
 ## カリキュラム コンテンツ
 
@@ -112,7 +211,7 @@ app/content/curricula/
 5. インポートスクリプトを実行してDBに反映
 
 ```bash
-docker compose exec app npx tsx --env-file=.env content/import.ts
+docker compose exec app npm run import-content
 ```
 
 ### テキストレッスン（.md）の書き方
@@ -122,6 +221,7 @@ docker compose exec app npx tsx --env-file=.env content/import.ts
 title: "レッスンタイトル"
 type: "text"
 order: 1
+assignment_type: "sql"   # 練習問題の提出を追加する場合
 ---
 
 ## 本文をここに書く
