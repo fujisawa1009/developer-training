@@ -38,16 +38,23 @@ cd developer-training
 
 ### 2. 環境変数の設定
 
+プロジェクトルートに `.env` を作成します（`docker-compose.yml` が参照します）。
+
 ```bash
-cp app/.env.example app/.env
+cp .env.example .env
 ```
 
-`app/.env` を編集します。
+`.env` を編集します。
 
 ```env
-DATABASE_URL=postgresql://devtraining:devtraining@db:5432/devtraining
-AUTH_SECRET=<openssl rand -base64 32 で生成した値>
-AUTH_URL=http://<サーバーのIPまたはドメイン>:3001
+# 認証トークンの秘密鍵（openssl rand -base64 32 で生成）
+AUTH_SECRET=<生成した値>
+
+# アプリにアクセスするURL
+# ローカル開発の場合:
+AUTH_URL=http://localhost:3001
+# 検証・本番環境の場合:
+# AUTH_URL=http://<サーバーのIPまたはドメイン>:3001
 ```
 
 `AUTH_SECRET` の生成:
@@ -55,6 +62,8 @@ AUTH_URL=http://<サーバーのIPまたはドメイン>:3001
 ```bash
 openssl rand -base64 32
 ```
+
+> **補足:** `DATABASE_URL` は `docker-compose.yml` に固定値で設定済みのため、`.env` への記載は不要です。
 
 ### 3. 起動
 
@@ -138,12 +147,13 @@ docker compose exec app npx prisma migrate dev --name <変更内容>
 
 ### 1. 環境変数の設定
 
-プロジェクトルートに `.env` を作成します（`docker-compose.prod.yml` が参照します）。
+```bash
+cp .env.example .env
+```
+
+`.env` を編集します（`docker-compose.prod.yml` が参照します）。
 
 ```env
-POSTGRES_USER=<任意のユーザー名>
-POSTGRES_PASSWORD=<強力なパスワード>
-POSTGRES_DB=<任意のDB名>
 AUTH_SECRET=<openssl rand -base64 32 で生成した値>
 AUTH_URL=https://<本番ドメイン>
 ```

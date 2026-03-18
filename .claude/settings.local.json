@@ -9,7 +9,8 @@
       "Bash(docker kill:*)",
       "Bash(grep:*)",
       "Bash(wc:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(git check-ignore:*)"
     ]
   }
 }
