@@ -40,6 +40,9 @@ export async function seedTenantAndUsers() {
   const adminHash = await bcrypt.hash("Admin1234!", 10);
   const instructorHash = await bcrypt.hash("Instructor1234!", 10);
   const learnerHash = await bcrypt.hash("Learner1234!", 10);
+  const kinoshitaHash = await bcrypt.hash("password123", 10);
+  const okadaHash = await bcrypt.hash("password123", 10);
+  const maitaHash = await bcrypt.hash("password123", 10);
 
   const admin = await prisma.user.upsert({
     where: { tenantId_email: { tenantId: tenant.id, email: "admin@example.com" } },
@@ -80,17 +83,64 @@ export async function seedTenantAndUsers() {
     },
   });
 
+  const kinoshita = await prisma.user.upsert({
+    where: { tenantId_email: { tenantId: tenant.id, email: "learner2@example.com" } },
+    update: {},
+    create: {
+      tenantId: tenant.id,
+      email: "learner2@example.com",
+      passwordHash: kinoshitaHash,
+      name: "受講者2",
+      role: "learner",
+      cohortYearId: cohort2025.id,
+      departmentId: dept?.id,
+    },
+  });
+
+  const okada = await prisma.user.upsert({
+    where: { tenantId_email: { tenantId: tenant.id, email: "learner3@example.com" } },
+    update: {},
+    create: {
+      tenantId: tenant.id,
+      email: "learner3@example.com",
+      passwordHash: okadaHash,
+      name: "受講者3",
+      role: "learner",
+      cohortYearId: cohort2025.id,
+      departmentId: dept?.id,
+    },
+  });
+
+  const maita = await prisma.user.upsert({
+    where: { tenantId_email: { tenantId: tenant.id, email: "learner4@example.com" } },
+    update: {},
+    create: {
+      tenantId: tenant.id,
+      email: "learner4@example.com",
+      passwordHash: maitaHash,
+      name: "舞田 明宏",
+      role: "learner",
+      cohortYearId: cohort2025.id,
+      departmentId: dept?.id,
+    },
+  });
+
   console.log(`✅ ユーザー作成完了`);
   console.log(`   管理者:   admin@example.com / Admin1234!`);
   console.log(`   講師:     instructor@example.com / Instructor1234!`);
   console.log(`   受講者:   learner@example.com / Learner1234!`);
+  console.log(`   受講者: learner2@example.com / password123`);
+  console.log(`   受講者: learner3@example.com / password123`);
+  console.log(`   受講者: learner4@example.com / password123`);
 
   // 講師 → 受講者の担当割り当て
-  await prisma.instructorLearner.upsert({
-    where: { instructorId_learnerId: { instructorId: instructor.id, learnerId: learner.id } },
-    update: {},
-    create: { instructorId: instructor.id, learnerId: learner.id },
-  });
+  for (const learnerId of [learner.id, kinoshita.id, okada.id, maita.id]) {
+    await prisma.instructorLearner.upsert({
+      where: { instructorId_learnerId: { instructorId: instructor.id, learnerId } },
+      update: {},
+      create: { instructorId: instructor.id, learnerId },
+    });
+  }
 
-  return { tenant, admin, instructor, learner };
+  return { tenant, admin, instructor, learner, additionalLearners: [kinoshita, okada, maita] };
 }
