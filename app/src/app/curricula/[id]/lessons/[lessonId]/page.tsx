@@ -8,7 +8,9 @@ import { Separator } from "@/components/ui/separator";
 import { CompleteLessonButton } from "./_components/CompleteLessonButton";
 import { AssignmentSection } from "./_components/AssignmentSection";
 import { completeLesson, startAssignment, submitAssignment } from "../../../actions";
+import { addComment } from "@/app/submissions/actions";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { CommentThread } from "@/components/CommentThread";
 
 type Props = {
   params: Promise<{ id: string; lessonId: string }>;
@@ -40,7 +42,13 @@ export default async function LessonDetailPage({ params }: Props) {
         include: {
           submissions: {
             where: { learnerId: session.user.id },
-            include: { review: true },
+            include: {
+              review: true,
+              comments: {
+                include: { author: { select: { id: true, name: true, role: true } } },
+                orderBy: { createdAt: "asc" },
+              },
+            },
             orderBy: { attemptNumber: "asc" },
           },
         },
@@ -109,6 +117,14 @@ export default async function LessonDetailPage({ params }: Props) {
     ? submitAssignment.bind(null, draftSubmission.id, lessonId, curriculumId)
     : null;
 
+  // コメント用: 最新の非draft提出に対してbind
+  const commentableSubmission = latestSubmission && latestSubmission.status !== "draft"
+    ? latestSubmission
+    : null;
+  const commentActionBound = commentableSubmission
+    ? addComment.bind(null, commentableSubmission.id)
+    : null;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">
@@ -151,15 +167,24 @@ export default async function LessonDetailPage({ params }: Props) {
               <MarkdownRenderer content={lesson.body ?? ""} />
             </div>
             {lesson.assignment ? (
-              <AssignmentSection
-                assignment={lesson.assignment}
-                draftSubmission={draftSubmission ?? null}
-                latestSubmission={latestSubmission ?? null}
-                allSubmissions={submissions}
-                startAction={startAssignmentBound!}
-                submitAction={submitActionBound}
-                isCompleted={isCompleted}
-              />
+              <>
+                <AssignmentSection
+                  assignment={lesson.assignment}
+                  draftSubmission={draftSubmission ?? null}
+                  latestSubmission={latestSubmission ?? null}
+                  allSubmissions={submissions}
+                  startAction={startAssignmentBound!}
+                  submitAction={submitActionBound}
+                  isCompleted={isCompleted}
+                />
+                {commentActionBound && commentableSubmission && (
+                  <CommentThread
+                    comments={(commentableSubmission as typeof submissions[number]).comments}
+                    action={commentActionBound}
+                    currentUserId={session.user.id}
+                  />
+                )}
+              </>
             ) : (
               !isCompleted && (
                 <div className="flex justify-end">
@@ -219,6 +244,15 @@ export default async function LessonDetailPage({ params }: Props) {
               submitAction={submitActionBound}
               isCompleted={isCompleted}
             />
+
+            {/* コメントスレッド */}
+            {commentActionBound && commentableSubmission && (
+              <CommentThread
+                comments={(commentableSubmission as typeof submissions[number]).comments}
+                action={commentActionBound}
+                currentUserId={session.user.id}
+              />
+            )}
           </div>
         )}
 

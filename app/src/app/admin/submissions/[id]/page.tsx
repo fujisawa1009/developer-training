@@ -6,7 +6,9 @@ import { ArrowLeft, CheckCircle2, XCircle, Clock, Hash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { GradeForm } from "./_components/GradeForm";
+import { CommentThread } from "@/components/CommentThread";
 import { gradeSubmission } from "../actions";
+import { addComment } from "@/app/submissions/actions";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -44,6 +46,10 @@ export default async function SubmissionDetailPage({ params }: Props) {
       assignment: true,
       learner: true,
       review: { include: { submission: false } },
+      comments: {
+        include: { author: { select: { id: true, name: true, role: true } } },
+        orderBy: { createdAt: "asc" },
+      },
     },
   });
 
@@ -60,6 +66,7 @@ export default async function SubmissionDetailPage({ params }: Props) {
   });
 
   const boundGrade = gradeSubmission.bind(null, id);
+  const boundAddComment = addComment.bind(null, id);
   const canGrade = submission.status === "submitted";
 
   return (
@@ -184,6 +191,15 @@ export default async function SubmissionDetailPage({ params }: Props) {
           )}
         </div>
       ) : null}
+
+      {/* コメントスレッド */}
+      {submission.status !== "draft" && (
+        <CommentThread
+          comments={submission.comments}
+          action={boundAddComment}
+          currentUserId={session.user.id}
+        />
+      )}
 
       {/* 提出履歴 */}
       {allSubmissions.length > 1 && (

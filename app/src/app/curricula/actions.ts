@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { createNotificationForMany } from "@/lib/notifications";
 
 export type SubmitFormState = {
   errors?: Record<string, string[]>;
@@ -94,7 +95,7 @@ export async function submitAssignment(
     return { message: "提出物が見つかりません（既に提出済みの可能性があります）" };
   }
 
-  await prisma.submission.update({
+  const updated = await prisma.submission.update({
     where: { id: submissionId },
     data: {
       githubUrl: githubUrl || null,
@@ -102,7 +103,32 @@ export async function submitAssignment(
       submittedAt: new Date(),
       status: "submitted",
     },
+    include: { assignment: true },
   });
+
+  // 担当講師 + 管理者に提出通知を送信
+  const instructors = await prisma.instructorLearner.findMany({
+    where: { learnerId: session.user.id },
+    select: { instructorId: true },
+  });
+  const admins = await prisma.user.findMany({
+    where: { tenantId: session.user.tenantId, role: "admin" },
+    select: { id: true },
+  });
+  const recipientIds = [
+    ...new Set([
+      ...instructors.map((i) => i.instructorId),
+      ...admins.map((a) => a.id),
+    ]),
+  ];
+  if (recipientIds.length > 0) {
+    await createNotificationForMany(
+      recipientIds,
+      "submission_submitted",
+      `${session.user.name} さんが課題「${updated.assignment.title}」を提出しました`,
+      `/admin/submissions/${submissionId}`,
+    );
+  }
 
   revalidatePath(`/curricula/${curriculumId}/lessons/${lessonId}`);
   redirect(`/curricula/${curriculumId}/lessons/${lessonId}`);

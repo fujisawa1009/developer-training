@@ -58,6 +58,7 @@ model User {
   selfEvaluations       LearnerChecklistItem[] @relation("selfEvaluator")
   instructorEvaluations LearnerChecklistItem[] @relation("instructorEvaluator")
   submissions           Submission[]
+  submissionComments    SubmissionComment[]
   lessonProgresses      LessonProgress[]
 
   @@unique([tenantId, email])
@@ -332,9 +333,10 @@ model Submission {
   submittedAt   DateTime?                        // 提出時刻（提出前はnull）
   status        SubmissionStatus @default(draft)
 
-  assignment Assignment @relation(fields: [assignmentId], references: [id])
-  learner    User       @relation(fields: [learnerId], references: [id])
+  assignment Assignment          @relation(fields: [assignmentId], references: [id])
+  learner    User                @relation(fields: [learnerId], references: [id])
   review     Review?
+  comments   SubmissionComment[]
 }
 
 enum SubmissionStatus {
@@ -361,6 +363,17 @@ model Review {
 enum ReviewStatus {
   pending   // 採点待ち
   completed // 採点完了
+}
+
+model SubmissionComment {
+  id           String   @id @default(cuid())
+  submissionId String
+  authorId     String
+  body         String
+  createdAt    DateTime @default(now())
+
+  submission Submission @relation(fields: [submissionId], references: [id])
+  author     User       @relation(fields: [authorId], references: [id])
 }
 
 // ─────────────────────────────────────────

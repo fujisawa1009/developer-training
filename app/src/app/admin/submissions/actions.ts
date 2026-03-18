@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { createNotification } from "@/lib/notifications";
 
 export type GradeFormState = {
   errors?: Record<string, string[]>;
@@ -95,6 +96,30 @@ export async function gradeSubmission(
       }
     }
   });
+
+  // 受講者に採点通知を送信
+  const lesson = submission.assignment.lessons[0];
+  let learnerLink: string | undefined;
+  if (lesson) {
+    const lessonData = await prisma.lesson.findUnique({
+      where: { id: lesson.id },
+      select: { curriculumId: true },
+    });
+    if (lessonData) {
+      learnerLink = `/curricula/${lessonData.curriculumId}/lessons/${lesson.id}`;
+    }
+  }
+  await createNotification(
+    submission.learnerId,
+    "submission_graded",
+    `課題「${submission.assignment.title}」が${passed ? "合格" : "不合格"}と採点されました`,
+    learnerLink,
+  );
+
+  // 受講者のレッスンページも再検証
+  if (learnerLink) {
+    revalidatePath(learnerLink);
+  }
 
   revalidatePath("/admin/submissions");
   revalidatePath(`/admin/submissions/${submissionId}`);
