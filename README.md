@@ -12,7 +12,17 @@ http://localhost:3000/login
 
 seed実行
 ```
-cd app && npx tsx --env-file=.env prisma/seed.ts
+  # パッケージ変更があった場合（--build と -v を両方つける）                       
+  docker compose down -v                                                           
+  docker compose up -d --build
+  docker compose exec app npm run seed
+  docker compose exec app npm run import-content
+
+  # 通常のDBリセット
+  docker compose down -v
+  docker compose up -d
+  docker compose exec app npm run seed
+  docker compose exec app npm run import-content
 ```
 
   ┌────────┬────────────────────────┬─────────────────┐                                 
