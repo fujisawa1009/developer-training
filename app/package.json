@@ -7,12 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "npx tsx --env-file=.env prisma/seed.ts",
-    "seed:demo": "npx tsx --env-file=.env prisma/seed-demo.ts",
-    "import-content": "npx tsx --env-file=.env content/import.ts"
+    "seed": "npx tsx prisma/seed.ts",
+    "seed:demo": "npx tsx prisma/seed-demo.ts",
+    "import-content": "npx tsx content/import.ts"
   },
   "prisma": {
-    "seed": "npx tsx --env-file=.env prisma/seed.ts"
+    "seed": "npx tsx prisma/seed.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
