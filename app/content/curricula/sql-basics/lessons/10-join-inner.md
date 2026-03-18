@@ -2,6 +2,7 @@
 title: "INNER JOIN - テーブルの結合"
 type: "text"
 order: 11
+assignment_type: "sql"
 ---
 
 ## JOINとは
@@ -12,7 +13,7 @@ order: 11
 
 ユーザーと注文が別テーブルに分かれている場合、「誰がいくら注文したか」を知るにはテーブルを結合する必要があります。
 
-```
+```text
 users テーブル            orders テーブル
 ┌────┬──────┐            ┌────┬─────────┬────────┐
 │ id │ name │            │ id │ user_id │ amount │
@@ -36,7 +37,7 @@ INNER JOIN orders ON users.id = orders.user_id;
 ```
 
 結果：
-```
+```text
  name │ amount
 ──────┼────────
  山田 │   3000
@@ -71,7 +72,7 @@ ORDER BY 合計金額 DESC;
 ```
 
 結果：
-```
+```text
  name │ 注文件数 │ 合計金額
 ──────┼──────────┼──────────
  山田 │        2 │     8000

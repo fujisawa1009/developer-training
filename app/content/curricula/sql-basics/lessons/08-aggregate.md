@@ -2,6 +2,7 @@
 title: "集計関数 - COUNT / SUM / AVG / MAX / MIN"
 type: "text"
 order: 9
+assignment_type: "sql"
 ---
 
 ## 集計関数

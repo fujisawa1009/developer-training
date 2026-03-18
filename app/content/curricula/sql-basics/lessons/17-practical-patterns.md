@@ -2,6 +2,7 @@
 title: "実務でよく使うSQLパターン"
 type: "text"
 order: 19
+assignment_type: "sql"
 ---
 
 ## 実務でよく使うSQLパターン

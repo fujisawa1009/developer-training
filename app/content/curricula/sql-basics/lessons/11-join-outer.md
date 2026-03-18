@@ -2,6 +2,7 @@
 title: "LEFT JOIN / RIGHT JOIN - 外部結合"
 type: "text"
 order: 12
+assignment_type: "sql"
 ---
 
 ## 外部結合（OUTER JOIN）
@@ -19,7 +20,7 @@ LEFT JOIN orders o ON u.id = o.user_id;
 ```
 
 結果：
-```
+```text
  name │ amount
 ──────┼────────
  山田 │   3000
@@ -30,7 +31,7 @@ LEFT JOIN orders o ON u.id = o.user_id;
 
 ### INNER JOIN と LEFT JOIN の比較
 
-```
+```text
 INNER JOIN: 両方に存在するデータだけ
 ┌──────────┐
 │  users   │───共通部分だけ───│  orders  │
@@ -66,7 +67,7 @@ ORDER BY 注文件数 DESC;
 ```
 
 結果：
-```
+```text
  name │ 注文件数
 ──────┼──────────
  山田 │        2

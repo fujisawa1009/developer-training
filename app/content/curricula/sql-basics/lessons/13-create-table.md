@@ -2,6 +2,7 @@
 title: "CREATE TABLE - テーブル設計"
 type: "text"
 order: 15
+assignment_type: "sql"
 ---
 
 ## CREATE TABLE

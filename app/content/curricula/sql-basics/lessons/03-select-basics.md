@@ -2,6 +2,7 @@
 title: "SELECT - データの取得"
 type: "text"
 order: 3
+assignment_type: "sql"
 ---
 
 ## SELECT文
@@ -23,7 +24,7 @@ SELECT * FROM users;
 
 実行結果：
 
-```
+```text
  id │ name │ email              │ role
 ────┼──────┼────────────────────┼─────────
   1 │ 山田 │ yamada@example.com │ admin
@@ -39,7 +40,7 @@ SELECT name, email FROM users;
 
 実行結果：
 
-```
+```text
  name │ email
 ──────┼────────────────────
  山田 │ yamada@example.com
@@ -65,7 +66,7 @@ SELECT DISTINCT role FROM users;
 
 実行結果：
 
-```
+```text
  role
 ─────────
  admin

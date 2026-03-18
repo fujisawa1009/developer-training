@@ -2,6 +2,7 @@
 title: "GROUP BY - グループ化と集計"
 type: "text"
 order: 10
+assignment_type: "sql"
 ---
 
 ## GROUP BY句
@@ -25,7 +26,7 @@ GROUP BY role;
 ```
 
 結果：
-```
+```text
  role       │ 人数
 ────────────┼──────
  admin      │    1

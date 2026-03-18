@@ -2,6 +2,7 @@
 title: "WHERE - 条件で絞り込む"
 type: "text"
 order: 4
+assignment_type: "sql"
 ---
 
 ## WHERE句

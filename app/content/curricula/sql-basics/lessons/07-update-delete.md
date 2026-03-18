@@ -2,6 +2,7 @@
 title: "UPDATE / DELETE - データの更新と削除"
 type: "text"
 order: 7
+assignment_type: "sql"
 ---
 
 ## UPDATE文
@@ -99,7 +100,7 @@ COMMIT;    -- 問題なければ確定
 
 UPDATE / DELETE を実行すると、PostgreSQLは影響を受けた行数を表示します。
 
-```
+```text
 UPDATE 1   ← 1行だけ更新された（想定通り）
 UPDATE 100 ← 100行も更新された（意図した？）
 ```

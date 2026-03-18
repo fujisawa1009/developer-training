@@ -2,6 +2,7 @@
 title: "ORDER BY - 並び替え"
 type: "text"
 order: 5
+assignment_type: "sql"
 ---
 
 ## ORDER BY句

@@ -2,6 +2,7 @@
 title: "サブクエリ - SQLの中にSQL"
 type: "text"
 order: 14
+assignment_type: "sql"
 ---
 
 ## サブクエリとは

@@ -35,7 +35,7 @@ type Props = {
   latestSubmission: Submission | null;
   allSubmissions: Submission[];
   startAction: () => Promise<void>;
-  submitAction: (submissionId: string) => (prevState: SubmitFormState, formData: FormData) => Promise<SubmitFormState>;
+  submitAction: ((prevState: SubmitFormState, formData: FormData) => Promise<SubmitFormState>) | null;
   isCompleted: boolean;
 };
 
@@ -60,11 +60,9 @@ function formatDuration(startedAt: Date, submittedAt: Date | null): string {
 
 // 課題提出フォーム
 function SubmitForm({
-  submissionId,
   assignmentType,
   submitAction,
 }: {
-  submissionId: string;
   assignmentType: string;
   submitAction: (prevState: SubmitFormState, formData: FormData) => Promise<SubmitFormState>;
 }) {
@@ -273,9 +271,8 @@ export function AssignmentSection({
           </div>
         </div>
         <SubmitForm
-          submissionId={draftSubmission.id}
           assignmentType={assignment.type}
-          submitAction={submitAction(draftSubmission.id)}
+          submitAction={submitAction!}
         />
       </div>
     );

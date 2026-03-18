@@ -2,6 +2,7 @@
 title: "トランザクション - データの整合性を守る"
 type: "text"
 order: 18
+assignment_type: "sql"
 ---
 
 ## トランザクションとは

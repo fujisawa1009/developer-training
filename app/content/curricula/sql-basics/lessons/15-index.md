@@ -2,6 +2,7 @@
 title: "インデックス - 検索を高速化する"
 type: "text"
 order: 17
+assignment_type: "sql"
 ---
 
 ## インデックスとは
@@ -12,7 +13,7 @@ order: 17
 
 全件を先頭から順に調べます（フルテーブルスキャン）。データ量が多いほど遅くなります。
 
-```
+```text
 WHERE email = 'yamada@example.com'
 
 → 1行目を確認... 違う
@@ -25,7 +26,7 @@ WHERE email = 'yamada@example.com'
 
 ソート済みの索引を使って高速に検索します。
 
-```
+```text
 WHERE email = 'yamada@example.com'
 
 → 索引で「yamada」の位置を特定 → 即座に取得  ← 高速

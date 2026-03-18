@@ -27,6 +27,7 @@ interface TextLessonFrontmatter {
   title: string;
   type: "text";
   order: number;
+  assignment_type?: "git" | "sql" | "program" | "debug";
 }
 
 interface VideoLesson {
@@ -145,12 +146,34 @@ async function importCurricula(tenantId: string) {
         // テキストレッスン
         const content = fs.readFileSync(filePath, "utf-8");
         const { frontmatter, body } = parseFrontmatter(content);
+
+        // assignment_type が指定されている場合はAssignmentを作成
+        let assignmentId: string | undefined;
+        if (frontmatter.assignment_type) {
+          const assignment = await prisma.assignment.upsert({
+            where: { id: `assignment-${tenantId}-${lessonSlug}` },
+            update: {
+              title: `${frontmatter.title} - 練習問題`,
+              description: "このレッスンの末尾にある練習問題に取り組み、解答を提出してください。",
+            },
+            create: {
+              id: `assignment-${tenantId}-${lessonSlug}`,
+              tenantId,
+              title: `${frontmatter.title} - 練習問題`,
+              type: frontmatter.assignment_type,
+              description: "このレッスンの末尾にある練習問題に取り組み、解答を提出してください。",
+            },
+          });
+          assignmentId = assignment.id;
+        }
+
         lessonData = {
           slug: lessonSlug,
           title: frontmatter.title,
           type: "text",
           order: frontmatter.order,
           body,
+          assignmentId,
         };
       } else if (file.endsWith(".json")) {
         // 動画 or 課題レッスン

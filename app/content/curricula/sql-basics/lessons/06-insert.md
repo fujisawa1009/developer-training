@@ -2,6 +2,7 @@
 title: "INSERT - データの追加"
 type: "text"
 order: 6
+assignment_type: "sql"
 ---
 
 ## INSERT文
@@ -56,7 +57,7 @@ RETURNING id, name;
 
 実行結果：
 
-```
+```text
  id │  name
 ────┼────────
   7 │ 松本

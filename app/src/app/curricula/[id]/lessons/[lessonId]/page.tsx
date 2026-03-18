@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { CompleteLessonButton } from "./_components/CompleteLessonButton";
 import { AssignmentSection } from "./_components/AssignmentSection";
 import { completeLesson, startAssignment, submitAssignment } from "../../../actions";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
 type Props = {
   params: Promise<{ id: string; lessonId: string }>;
@@ -103,6 +104,10 @@ export default async function LessonDetailPage({ params }: Props) {
   const startAssignmentBound = lesson.assignment
     ? startAssignment.bind(null, lessonId, lesson.assignment.id, curriculumId)
     : null;
+  // draftSubmission.id はサーバー側で既知なので事前にbindしてクライアントに渡す
+  const submitActionBound = draftSubmission
+    ? submitAssignment.bind(null, draftSubmission.id, lessonId, curriculumId)
+    : null;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -143,16 +148,24 @@ export default async function LessonDetailPage({ params }: Props) {
         {lesson.type === "text" && (
           <div className="space-y-6">
             <div className="rounded-lg border bg-white p-6">
-              <div className="prose prose-sm max-w-none">
-                <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed">
-                  {lesson.body}
-                </pre>
-              </div>
+              <MarkdownRenderer content={lesson.body ?? ""} />
             </div>
-            {!isCompleted && (
-              <div className="flex justify-end">
-                <CompleteLessonButton action={completeLessonBound} />
-              </div>
+            {lesson.assignment ? (
+              <AssignmentSection
+                assignment={lesson.assignment}
+                draftSubmission={draftSubmission ?? null}
+                latestSubmission={latestSubmission ?? null}
+                allSubmissions={submissions}
+                startAction={startAssignmentBound!}
+                submitAction={submitActionBound}
+                isCompleted={isCompleted}
+              />
+            ) : (
+              !isCompleted && (
+                <div className="flex justify-end">
+                  <CompleteLessonButton action={completeLessonBound} />
+                </div>
+              )
             )}
           </div>
         )}
@@ -203,9 +216,7 @@ export default async function LessonDetailPage({ params }: Props) {
               latestSubmission={latestSubmission ?? null}
               allSubmissions={submissions}
               startAction={startAssignmentBound!}
-              submitAction={(submissionId) =>
-                submitAssignment.bind(null, submissionId, lessonId, curriculumId)
-              }
+              submitAction={submitActionBound}
               isCompleted={isCompleted}
             />
           </div>

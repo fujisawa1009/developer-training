@@ -6,7 +6,10 @@
       "Bash(curl:*)",
       "Bash(docker exec:*)",
       "Bash(npm install:*)",
-      "Bash(docker kill:*)"
+      "Bash(docker kill:*)",
+      "Bash(grep:*)",
+      "Bash(wc:*)",
+      "Bash(ls:*)"
     ]
   }
 }
