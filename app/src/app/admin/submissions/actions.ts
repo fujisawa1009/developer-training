@@ -42,17 +42,18 @@ export async function gradeSubmission(
   const { passed, instructorComment } = parsed.data;
 
   // 提出物の確認（テナント内であること）
+  // submitted, passed, failed のいずれも再採点可能にする
   const submission = await prisma.submission.findFirst({
     where: {
       id: submissionId,
       assignment: { tenantId: session.user.tenantId },
-      status: "submitted",
+      status: { in: ["submitted", "passed", "failed"] },
     },
     include: { assignment: { include: { lessons: { take: 1 } } } },
   });
 
   if (!submission) {
-    return { message: "提出物が見つかりません（既に採点済みの可能性があります）" };
+    return { message: "提出物が見つかりません" };
   }
 
   // Review を作成 or 更新、Submission のステータスを変更
@@ -76,6 +77,7 @@ export async function gradeSubmission(
       },
     });
 
+    // 不合格の場合は failed に変更（受講者が再提出ボタンを押すまで待つ）
     await tx.submission.update({
       where: { id: submissionId },
       data: { status: passed ? "passed" : "failed" },

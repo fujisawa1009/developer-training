@@ -67,7 +67,8 @@ export default async function SubmissionDetailPage({ params }: Props) {
 
   const boundGrade = gradeSubmission.bind(null, id);
   const boundAddComment = addComment.bind(null, id);
-  const canGrade = submission.status === "submitted";
+  // 提出済み・合格・不合格のいずれも再採点可能
+  const canGrade = submission.status === "submitted" || submission.status === "passed" || submission.status === "failed";
 
   return (
     <div className="p-8 max-w-3xl space-y-6">
@@ -159,8 +160,22 @@ export default async function SubmissionDetailPage({ params }: Props) {
       {/* 採点フォーム or 採点済み結果 */}
       {canGrade ? (
         <div className="rounded-lg border bg-white p-6 space-y-4">
-          <h2 className="font-semibold">採点</h2>
-          <GradeForm action={boundGrade} />
+          <h2 className="font-semibold">
+            {submission.review ? "再採点" : "採点"}
+          </h2>
+          {submission.review && (
+            <div className="rounded-md bg-yellow-50 border border-yellow-200 p-3 text-sm space-y-2">
+              <p className="font-medium text-yellow-800">現在の採点結果</p>
+              <p className="text-yellow-700">
+                判定: <span className="font-semibold">{submission.review.passed ? "合格" : "不合格"}</span>
+              </p>
+              {submission.review.instructorComment && (
+                <p className="text-yellow-700">コメント: {submission.review.instructorComment}</p>
+              )}
+              <p className="text-xs text-yellow-600">再採点すると上記の内容が上書きされます</p>
+            </div>
+          )}
+          <GradeForm action={boundGrade} existingReview={submission.review} />
         </div>
       ) : submission.review ? (
         <div className="rounded-lg border bg-white p-6 space-y-4">
@@ -209,42 +224,55 @@ export default async function SubmissionDetailPage({ params }: Props) {
             {allSubmissions.map((s) => (
               <div
                 key={s.id}
-                className={`flex items-center justify-between px-3 py-2 rounded-md text-sm ${
+                className={`px-3 py-2 rounded-md text-sm ${
                   s.id === id ? "bg-blue-50 border border-blue-200" : "bg-gray-50"
                 }`}
               >
-                <span className="font-medium">第 {s.attemptNumber} 回目</span>
-                <span className="text-muted-foreground">
-                  {s.submittedAt
-                    ? new Date(s.submittedAt).toLocaleString("ja-JP", {
-                        month: "numeric",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : "未提出"}
-                </span>
-                <span className="text-muted-foreground">
-                  取り組み時間: {formatDuration(s.startedAt, s.submittedAt)}
-                </span>
-                <Badge
-                  variant={
-                    s.status === "passed"
-                      ? "default"
-                      : s.status === "failed"
-                      ? "destructive"
-                      : "secondary"
-                  }
-                >
-                  {STATUS_LABELS[s.status]}
-                </Badge>
-                {s.id !== id && (
-                  <Link
-                    href={`/admin/submissions/${s.id}`}
-                    className="text-blue-600 hover:underline text-xs"
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-medium">第 {s.attemptNumber} 回目</span>
+                  <span className="text-muted-foreground text-xs">
+                    {s.submittedAt
+                      ? new Date(s.submittedAt).toLocaleString("ja-JP", {
+                          month: "numeric",
+                          day: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "未提出"}
+                  </span>
+                  <span className="text-muted-foreground text-xs">
+                    {formatDuration(s.startedAt, s.submittedAt)}
+                  </span>
+                  <Badge
+                    variant={
+                      s.status === "passed"
+                        ? "default"
+                        : s.status === "failed"
+                        ? "destructive"
+                        : "secondary"
+                    }
                   >
-                    詳細
-                  </Link>
+                    {STATUS_LABELS[s.status]}
+                  </Badge>
+                  {s.id !== id && (
+                    <Link
+                      href={`/admin/submissions/${s.id}`}
+                      className="text-blue-600 hover:underline text-xs"
+                    >
+                      この回を表示
+                    </Link>
+                  )}
+                  {s.id === id && (
+                    <span className="text-xs text-blue-600 font-medium">表示中</span>
+                  )}
+                </div>
+                {s.review && (
+                  <div className="text-xs text-muted-foreground pl-2 border-l-2 border-gray-300">
+                    講師評価: {s.review.passed ? "合格" : "不合格"}
+                    {s.review.instructorComment && (
+                      <span className="ml-2">（{s.review.instructorComment.slice(0, 30)}...）</span>
+                    )}
+                  </div>
                 )}
               </div>
             ))}

@@ -5,11 +5,17 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import type { GradeFormState } from "../../actions";
 
+type Review = {
+  passed: boolean | null;
+  instructorComment: string | null;
+} | null;
+
 type Props = {
   action: (prevState: GradeFormState, formData: FormData) => Promise<GradeFormState>;
+  existingReview?: Review;
 };
 
-export function GradeForm({ action }: Props) {
+export function GradeForm({ action, existingReview }: Props) {
   const [state, dispatch, isPending] = useActionState(action, null);
 
   return (
@@ -30,6 +36,7 @@ export function GradeForm({ action }: Props) {
               name="passed"
               value="true"
               className="accent-green-600"
+              defaultChecked={existingReview?.passed === true}
               required
             />
             <span className="font-medium text-green-700">合格</span>
@@ -41,6 +48,7 @@ export function GradeForm({ action }: Props) {
               name="passed"
               value="false"
               className="accent-red-600"
+              defaultChecked={existingReview?.passed === false}
             />
             <span className="font-medium text-red-700">不合格</span>
             <span className="text-xs text-muted-foreground">再提出が必要</span>
@@ -59,6 +67,7 @@ export function GradeForm({ action }: Props) {
           name="instructorComment"
           rows={5}
           required
+          defaultValue={existingReview?.instructorComment || ""}
           placeholder="採点理由・改善点・良かった点などを記入してください..."
           className="w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors resize-y"
           aria-invalid={!!state?.errors?.instructorComment}
@@ -69,7 +78,7 @@ export function GradeForm({ action }: Props) {
       </div>
 
       <Button type="submit" disabled={isPending}>
-        {isPending ? "採点中..." : "採点を確定する"}
+        {isPending ? "採点中..." : existingReview ? "再採点を確定する" : "採点を確定する"}
       </Button>
     </form>
   );
