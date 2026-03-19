@@ -1,8 +1,16 @@
 import { prisma } from "./_client";
 
 export async function seedChecklist(tenantId: string) {
-  const template = await prisma.checklistTemplate.create({
-    data: {
+  // テンプレートをupsertで作成（重複防止）
+  const template = await prisma.checklistTemplate.upsert({
+    where: {
+      id: `checklist-template-${tenantId}-default`,
+    },
+    update: {
+      name: "新卒エンジニア標準チェックリスト",
+    },
+    create: {
+      id: `checklist-template-${tenantId}-default`,
       tenantId,
       name: "新卒エンジニア標準チェックリスト",
     },
@@ -82,7 +90,17 @@ export async function seedChecklist(tenantId: string) {
 
   const createdCategories: { id: string; name: string }[] = [];
 
+  // 既存カテゴリを確認して、なければ作成
   for (const cat of categoriesData) {
+    const existing = await prisma.checklistCategory.findFirst({
+      where: { checklistTemplateId: template.id, name: cat.name },
+    });
+
+    if (existing) {
+      createdCategories.push({ id: existing.id, name: existing.name });
+      continue;
+    }
+
     const category = await prisma.checklistCategory.create({
       data: {
         checklistTemplateId: template.id,
@@ -133,15 +151,23 @@ export async function seedChecklist(tenantId: string) {
     for (let i = 0; i < gitCategory.items.length; i++) {
       const item = gitCategory.items[i];
       const guide = guideData[i];
-      await prisma.learningGuide.create({
-        data: {
-          checklistItemId: item.id,
-          body: guide.body,
-          resourceLinks: {
-            create: guide.links,
-          },
-        },
+
+      // 既存のガイドをチェック（重複防止）
+      const existingGuide = await prisma.learningGuide.findUnique({
+        where: { checklistItemId: item.id },
       });
+
+      if (!existingGuide) {
+        await prisma.learningGuide.create({
+          data: {
+            checklistItemId: item.id,
+            body: guide.body,
+            resourceLinks: {
+              create: guide.links,
+            },
+          },
+        });
+      }
     }
     console.log(`✅ 学習ガイド: Git カテゴリの最初の3項目にサンプル追加`);
   }

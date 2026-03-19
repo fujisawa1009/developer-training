@@ -33,26 +33,33 @@ export async function seedCurriculumPlan(
 
   console.log(`✅ 受講者にプランを割り当て（${learnerIds.length}名）`);
 
-  // 課題サンプル
-  await prisma.assignment.createMany({
-    data: [
-      {
-        tenantId,
-        title: "Git試験",
-        type: "git",
-        description:
-          "新しいブランチを作成し、README.mdを編集してPull Requestを作成してください。",
-        deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      },
-      {
-        tenantId,
-        title: "SQL試験",
-        type: "sql",
-        description:
-          "users・orders・productsの3テーブルをJOINして、各ユーザーの合計注文金額を取得するSQLを書いてください。",
-        deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
-      },
-    ],
+  // 課題サンプル（upsertで重複防止）
+  await prisma.assignment.upsert({
+    where: { id: `assignment-${tenantId}-git-exam` },
+    update: {},
+    create: {
+      id: `assignment-${tenantId}-git-exam`,
+      tenantId,
+      title: "Git試験",
+      type: "git",
+      description:
+        "新しいブランチを作成し、README.mdを編集してPull Requestを作成してください。",
+      deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  await prisma.assignment.upsert({
+    where: { id: `assignment-${tenantId}-sql-exam` },
+    update: {},
+    create: {
+      id: `assignment-${tenantId}-sql-exam`,
+      tenantId,
+      title: "SQL試験",
+      type: "sql",
+      description:
+        "users・orders・productsの3テーブルをJOINして、各ユーザーの合計注文金額を取得するSQLを書いてください。",
+      deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+    },
   });
 
   console.log(`✅ 課題サンプル: 2件`);

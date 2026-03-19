@@ -10,7 +10,8 @@
       "Bash(grep:*)",
       "Bash(wc:*)",
       "Bash(ls:*)",
-      "Bash(git check-ignore:*)"
+      "Bash(git check-ignore:*)",
+      "Bash(npx tsx --env-file=.env -e \"\nimport { PrismaClient } from ''./src/generated/prisma/client'';\nimport { PrismaPg } from ''@prisma/adapter-pg'';\nconst adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });\nconst prisma = new PrismaClient({ adapter });\n\n(async () => {\n  const templates = await prisma.checklistTemplate.findMany({ select: { id: true, name: true, _count: { select: { categories: true } } } });\n  console.log(''=== ChecklistTemplates ==='');\n  console.log(JSON.stringify(templates, null, 2));\n  \n  const plans = await prisma.curriculumPlan.findMany({ select: { id: true, name: true, _count: { select: { items: true } } } });\n  console.log(''\\n=== CurriculumPlans ==='');\n  console.log(JSON.stringify(plans, null, 2));\n  \n  const curricula = await prisma.curriculum.findMany({ select: { id: true, slug: true, name: true, _count: { select: { lessons: true } } } });\n  console.log(''\\n=== Curricula ==='');\n  console.log(JSON.stringify(curricula, null, 2));\n  \n  const assignments = await prisma.assignment.findMany({ select: { id: true, title: true, type: true } });\n  console.log(''\\n=== Assignments ==='');\n  console.log(JSON.stringify(assignments, null, 2));\n  \n  await prisma.$disconnect();\n})();\n\")"
     ]
   }
 }

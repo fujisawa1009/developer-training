@@ -77,17 +77,26 @@ docker compose up -d --build
 
 ```bash
 #DBリセット（全削除 + 再マイグレーション + seed）
-# docker compose exec app php artisan optimize:clear
-# docker compose exec app php artisan migrate:fresh --seed
+docker compose exec app php artisan optimize:clear
+docker compose exec app php artisan migrate:fresh --seed
 
-# テナント・ユーザー・チェックリスト・カリキュラムプランを投入
-docker compose exec app npm run seed
+ 今すぐ実行すべき手順
 
-# カリキュラムのコンテンツ（レッスン）を投入
-docker compose exec app npm run import-content
+  # 1. 重複削除
+  docker compose exec app npx tsx prisma/cleanup-duplicates.ts
 
-# デモ用進捗データを投入（import-content の後に実行）
-docker compose exec app npm run seed:demo
+  # 2. コンテンツインポート
+  docker compose exec app npm run import-content
+
+  # 3. デモ進捗投入
+  docker compose exec app npm run seed:demo
+
+  # npm run seed は実行不要です（既にテナント・ユーザーデータが存在し、修正済みseedは冪等性があるため）
+
+  # 💡 カリキュラム変更時
+
+  # ファイル編集後
+  docker compose exec app npm run import-content
 
 
 ```
@@ -126,9 +135,6 @@ docker compose exec app npm run seed:demo
 # package.json を変更した場合（イメージ再ビルドが必要）
 docker compose down -v
 docker compose up -d --build
-docker compose exec app npm run seed
-docker compose exec app npm run import-content
-docker compose exec app npm run seed:demo
 ```
 
 ### カリキュラムコンテンツのみ更新
@@ -169,11 +175,6 @@ docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 ### 3. 初期データの投入
-
-```bash
-docker compose -f docker-compose.prod.yml exec app npm run seed
-docker compose -f docker-compose.prod.yml exec app npm run import-content
-```
 
 > **注意:** 本番環境では初期パスワードを必ず変更してください。
 
