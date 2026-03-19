@@ -37,9 +37,9 @@ export async function seedTenantAndUsers() {
   console.log(`✅ 年度: ${cohort2025.label} / 部署: ${dept?.name}`);
 
   // ユーザー
-  const adminHash = await bcrypt.hash("Admin1234!", 10);
-  const instructorHash = await bcrypt.hash("Instructor1234!", 10);
-  const learnerHash = await bcrypt.hash("Learner1234!", 10);
+  const adminHash = await bcrypt.hash("password123", 10);
+  const instructorHash = await bcrypt.hash("password123", 10);
+  const learnerHash = await bcrypt.hash("password123", 10);
   const kinoshitaHash = await bcrypt.hash("password123", 10);
   const okadaHash = await bcrypt.hash("password123", 10);
   const maitaHash = await bcrypt.hash("password123", 10);
@@ -51,7 +51,7 @@ export async function seedTenantAndUsers() {
       tenantId: tenant.id,
       email: "admin@example.com",
       passwordHash: adminHash,
-      name: "管理者 太郎",
+      name: "管理者",
       role: "admin",
     },
   });
@@ -63,7 +63,7 @@ export async function seedTenantAndUsers() {
       tenantId: tenant.id,
       email: "instructor@example.com",
       passwordHash: instructorHash,
-      name: "講師 花子",
+      name: "講師",
       role: "instructor",
       departmentId: dept?.id,
     },
@@ -76,7 +76,7 @@ export async function seedTenantAndUsers() {
       tenantId: tenant.id,
       email: "learner@example.com",
       passwordHash: learnerHash,
-      name: "新卒 一郎",
+      name: "新卒",
       role: "learner",
       cohortYearId: cohort2025.id,
       departmentId: dept?.id,
@@ -118,7 +118,7 @@ export async function seedTenantAndUsers() {
       tenantId: tenant.id,
       email: "learner4@example.com",
       passwordHash: maitaHash,
-      name: "舞田 明宏",
+      name: "受講者4",
       role: "learner",
       cohortYearId: cohort2025.id,
       departmentId: dept?.id,

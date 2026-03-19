@@ -10,9 +10,9 @@ seed 実行後に以下のアカウントが作成されます。
 
 | ロール | メールアドレス | パスワード |
 |--------|---------------|----------|
-| 管理者 | admin@example.com | Admin1234! |
-| 講師 | instructor@example.com | Instructor1234! |
-| 受講者 | learner@example.com | Learner1234! |
+| 管理者 | admin@example.com | password123 |
+| 講師 | instructor@example.com | password123 |
+| 受講者 | learner@example.com | password123 |
 
 ---
 
@@ -76,6 +76,10 @@ docker compose up -d --build
 ### 4. 初期データの投入
 
 ```bash
+#DBリセット（全削除 + 再マイグレーション + seed）
+# docker compose exec app php artisan optimize:clear
+# docker compose exec app php artisan migrate:fresh --seed
+
 # テナント・ユーザー・チェックリスト・カリキュラムプランを投入
 docker compose exec app npm run seed
 
