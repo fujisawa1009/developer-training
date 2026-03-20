@@ -277,3 +277,68 @@ Markdown形式で自由に記述できます。
 ```
 
 `assignmentType` は `git` / `sql` / `program` / `debug` のいずれか。
+
+---
+
+## プロジェクト構成
+
+```
+developer-training/
+├── README.md                        # プロジェクト説明・起動手順
+├── .env / .env.example              # 環境変数
+├── docker-compose.yml               # 開発用Docker設定
+├── docker-compose.prod.yml          # 本番用Docker設定
+│
+├── docs/                            # ドキュメント
+│   ├── design/                      #   設計ドキュメント
+│   │   ├── spec.md                  #     システム仕様書
+│   │   ├── api-design.md            #     API設計
+│   │   └── db-design.md             #     DB設計（Prisma Schema）
+│   ├── development-status.md        #   開発状況・追加開発リスト
+│   └── reports/                     #   実装記録・修正レポート
+│       ├── assignment-grading-flow.md  # 課題提出・採点フロー
+│       └── data-duplication-fix.md     # データ重複問題の修正レポート
+│
+└── app/                             # Next.js アプリケーション本体
+    ├── prisma/                      #   Prismaスキーマ・マイグレーション・seed
+    │   ├── migrations/              #     マイグレーションファイル群
+    │   └── seeds/                   #     シードスクリプト
+    ├── content/curricula/           #   カリキュラムコンテンツ（Markdown/JSON）
+    │   ├── _template/               #     テンプレート
+    │   ├── git-basics/              #     Git入門
+    │   ├── sql-basics/              #     SQL入門
+    │   ├── business-fundamentals/   #     社会人基礎
+    │   ├── it-fundamentals/         #     IT基礎
+    │   ├── programming-basics/      #     プログラミング基礎
+    │   ├── web-development/         #     Web開発
+    │   ├── infrastructure/          #     インフラ・環境構築
+    │   └── dev-process/             #     開発プロセス
+    ├── public/                      #   静的ファイル
+    └── src/                         #   ソースコード
+        ├── app/                     #     Next.js App Router
+        │   ├── admin/               #       管理者画面
+        │   │   ├── checklists/      #         チェックリスト管理
+        │   │   ├── curricula/       #         カリキュラム管理
+        │   │   ├── curriculum-plans/ #        カリキュラムプラン管理
+        │   │   ├── evaluation-periods/ #     評価期間管理
+        │   │   ├── reports/         #         レポート
+        │   │   ├── submissions/     #         課題提出管理
+        │   │   └── users/           #         ユーザー管理
+        │   ├── api/                 #       APIルート
+        │   │   ├── auth/            #         認証
+        │   │   └── reports/         #         レポートAPI
+        │   ├── checklists/          #       受講者チェックリスト画面
+        │   ├── curricula/           #       受講者カリキュラム画面
+        │   ├── curriculum-plans/    #       カリキュラムプラン画面
+        │   ├── dashboard/           #       ダッシュボード
+        │   ├── login/               #       ログイン画面
+        │   ├── notifications/       #       通知画面
+        │   └── submissions/         #       課題提出画面
+        ├── auth/                    #     NextAuth設定
+        ├── components/              #     共通コンポーネント
+        │   └── ui/                  #       UIコンポーネント
+        ├── generated/               #     Prisma生成ファイル
+        ├── lib/                     #     ユーティリティ・フック
+        │   └── hooks/
+        └── types/                   #     型定義
+```
