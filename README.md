@@ -294,7 +294,7 @@ developer-training/
 │   │   ├── spec.md                  #     システム仕様書
 │   │   ├── api-design.md            #     API設計
 │   │   └── db-design.md             #     DB設計（Prisma Schema）
-│   ├── development-status.md        #   開発状況・追加開発リスト
+│   ├── development-status.md        #   開発ロードマップ
 │   └── reports/                     #   実装記録・修正レポート
 │       ├── assignment-grading-flow.md  # 課題提出・採点フロー
 │       └── data-duplication-fix.md     # データ重複問題の修正レポート

@@ -1,6 +1,6 @@
-# エンジニア教育管理システム 仕様書（検討中）
+# エンジニア教育管理システム 仕様書
 
-> このドキュメントは壁打ち相談中の仕様メモです。随時更新します。
+> このドキュメントはシステムの仕様をまとめたものです。随時更新します。
 
 ---
 
@@ -223,6 +223,8 @@ Tenant（テナント＝会社）        ← SaaS展開時に複数社対応（�
 
 ## 6. 学習コンテンツ（ハイブリッド型）
 
+### 6.1 チェックリスト連動の学習ガイド
+
 各チェックリスト項目に「学習ガイド」を紐付ける。詳細コンテンツは外部リンクに委ねる。
 
 ```
@@ -239,6 +241,32 @@ Tenant（テナント＝会社）        ← SaaS展開時に複数社対応（�
 | 参考リンク | Zenn記事・社内Notion・公式ドキュメント等のURL |
 | 動画等 | 外部URL（YouTube・Udemy等）のリンクとして管理 |
 | 閲覧ログ | **管理しない**（シンプルさを優先。将来拡張可） |
+
+### 6.2 カリキュラム（コース）・レッスン
+
+チェックリストの学習ガイドとは別に、体系的な学習コースとして「カリキュラム」を管理する。
+
+```
+Curriculum（カリキュラム＝コース）
+ ├─ slug（ファイルシステムのディレクトリ名と対応）
+ ├─ name / description / order
+ └─ Lesson（レッスン）
+     ├─ type: text / video / assignment
+     ├─ body（Markdownテキスト、type: text の場合）
+     ├─ videoUrl（外部動画URL、type: video の場合）
+     ├─ assignmentId（課題への紐付け、type: assignment の場合）
+     └─ LessonProgress（受講者の完了記録）
+```
+
+| レッスンタイプ | 内容 |
+|--------------|------|
+| text | Markdownテキスト（frontmatter付き `.md` ファイル） |
+| video | 外部動画リンク（YouTube等のURL） |
+| assignment | 課題テスト（Assignmentモデルと連携） |
+
+- カリキュラムのコンテンツは `app/content/curricula/` にファイルとして管理し、インポートスクリプトでDBに反映する
+- カリキュラムプラン（7章）に紐付けて受講者に割り当てる
+- レッスンの完了状態は `LessonProgress` で管理する
 
 ---
 
@@ -469,14 +497,16 @@ Claude API が自動評価（コード分析 or テキスト分析）
 | 管理者によるプラン割り当て | ユーザー／コーホートへのプラン割り当て |
 | 基本的なユーザー管理 | 招待・ロール設定 |
 
-### 14.2 フェーズ設計（要相談）
+### 14.2 フェーズ設計
 
 | フェーズ | テーマ | 状態 |
 |---------|--------|------|
-| MVP | カリキュラム閲覧・基本ユーザー管理 | 確定 |
-| Phase 2 | チェックリスト評価・自己評価・通知 | 要相談 |
-| Phase 3 | 課題管理・AI採点・エクスポート | 要相談 |
-| Phase 4 | SaaS展開・マルチテナント・権限細分化 | 要相談 |
+| Phase 1（MVP） | カリキュラム閲覧・基本管理・評価・課題・通知 | 完了 |
+| Phase 2 | AI採点（AWS Bedrock）・テスト/品質保証・ダッシュボード拡充・PDF・検索 | 着手中 |
+| Phase 3 | 招待/PWリセット・カリキュラムAI作成UI・締め切り管理・評価遅延アラート | 未着手 |
+| Phase 4 | SaaS展開準備・マルチテナント・権限細分化・外部連携・パフォーマンス | 未着手 |
+
+> 各フェーズの詳細なタスク・進捗は [development-status.md](../development-status.md) を参照。
 
 ---
 
@@ -486,6 +516,7 @@ Claude API が自動評価（コード分析 or テキスト分析）
 |------------|------|
 | [db-design.md](./db-design.md) | Prisma Schema・テーブル構成・RLS設計 |
 | [api-design.md](./api-design.md) | REST APIエンドポイント一覧・リクエスト/レスポンス仕様 |
+| [development-status.md](../development-status.md) | 開発状況・追加開発リスト |
 
 ---
 
@@ -505,7 +536,7 @@ Claude API が自動評価（コード分析 or テキスト分析）
 
 ---
 
-## 16. データモデル（概要）
+## 17. データモデル（概要）
 
 ```
 Tenant（テナント＝会社）※手動作成
@@ -570,6 +601,31 @@ Assignment（課題）
          ├─ final_score（数値: 合格 / 不合格 など）
          └─ status: ai_pending / instructor_reviewing / completed
 
+InstructorLearner（講師-受講者割り当て）
+ ├─ instructor_id
+ └─ learner_id
+
+Curriculum（カリキュラム＝コース）
+ ├─ tenant_id
+ ├─ slug（ディレクトリ名と対応）
+ ├─ name / description / order
+ └─ Lesson（レッスン）
+     ├─ slug（ファイル名と対応）
+     ├─ title
+     ├─ type: text / video / assignment
+     ├─ body（Markdown本文）
+     ├─ videoUrl（動画URL）
+     ├─ assignment_id（課題紐付け）
+     └─ LessonProgress（受講者の完了記録）
+         ├─ learner_id
+         └─ completed_at
+
+SubmissionComment（提出コメント）
+ ├─ submission_id
+ ├─ author_id
+ ├─ body
+ └─ created_at
+
 Notification（通知）
  ├─ user_id
  ├─ type
@@ -581,7 +637,7 @@ Notification（通知）
 
 ---
 
-## 17. 未決定・要検討事項
+## 18. 未決定・要検討事項
 
 - [x] 受講者の**自己評価**機能：評価タイミング連動型
 - [x] **カリキュラム・学習コンテンツ**：ハイブリッド型（Markdown学習ガイド＋外部リンク）
@@ -614,3 +670,4 @@ Notification（通知）
 | 2026-03-12 | マルチテナント：共有DB＋RLSに決定 |
 | 2026-03-12 | 認証・招待・課題ルール・スコア・エクスポート等を決定 |
 | 2026-03-12 | 画面構成・権限設計（ユーザー単位チェック）・MVP・フェーズ設計を追加 |
+| 2026-03-20 | タイトルから「検討中」を削除、セクション番号修正、カリキュラム/レッスン機能を追記、データモデルに不足モデル追加 |
