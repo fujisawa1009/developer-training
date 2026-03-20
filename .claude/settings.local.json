@@ -23,7 +23,9 @@
       "Bash(docker compose up:*)",
       "Bash(docker compose exec app npm install:*)",
       "Bash(docker compose restart:*)",
-      "Bash(docker compose exec:*)"
+      "Bash(docker compose exec:*)",
+      "Bash(git -C /Users/fujisawa/Projects/developer-training show HEAD:tmp.md)",
+      "Bash(git -C /Users/fujisawa/Projects/developer-training log --diff-filter=D --name-only --format=%H -- tmp.md)"
     ]
   }
 }
