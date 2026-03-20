@@ -88,7 +88,28 @@ enum AssignmentType {
 
 ---
 
-## 6. AI採点の出力フォーマット
+## 6. 不正対策
+
+### 6.1 ペースト禁止
+
+受講者の回答入力欄（textAnswer）ではペースト操作を禁止する。
+受講者自身がコードや文章を書く力を評価するため、外部からのコピー&ペーストを防ぐ。
+
+- `onPaste` イベントで `preventDefault()` を実行
+- ペースト試行時にユーザーへ「ペーストは禁止されています。自分の言葉で入力してください」と通知
+
+### 6.2 AI生成回答の検知
+
+AI採点時に、受講者の回答がAIによって生成された可能性を判定する。
+採点プロンプトにAI生成判定の指示を含め、結果をReviewに保存する。
+
+- AI採点の出力に `aiGeneratedSuspicion`（AI生成の疑い度）を含める
+- 講師の採点画面で「AI生成の疑い」がある場合に警告を表示
+- 最終判断は講師が行う（自動で不合格にはしない）
+
+---
+
+## 7. AI採点の出力フォーマット
 
 > **要検討**: スコアの詳細形式は今後決定
 
@@ -97,6 +118,10 @@ enum AssignmentType {
   "recommendation": "pass | fail",
   "score": 85,
   "comment": "全体的な評価コメント",
+  "aiGeneratedSuspicion": {
+    "level": "low | medium | high",
+    "reason": "判定理由"
+  },
   "details": [
     { "criteria": "評価基準1", "result": "pass | fail | warning", "note": "詳細" },
     { "criteria": "評価基準2", "result": "pass | fail | warning", "note": "詳細" }
@@ -107,15 +132,16 @@ enum AssignmentType {
 - `recommendation`: AIの合否推奨（最終判定は講師が行う）
 - `score`: 数値スコア（0-100）
 - `comment`: 受講者・講師双方が参照できる全体コメント
+- `aiGeneratedSuspicion`: AI生成回答の疑い度と理由
 - `details`: 評価基準ごとの内訳
 
 保存先:
 - `Review.aiScore` ← `recommendation` と `score`
-- `Review.aiComment` ← `comment` と `details`（JSON文字列）
+- `Review.aiComment` ← `comment`、`details`、`aiGeneratedSuspicion`（JSON文字列）
 
 ---
 
-## 7. データモデルの変更
+## 8. データモデルの変更
 
 ### Review モデル（既存フィールドを活用）
 
@@ -155,7 +181,7 @@ enum AssignmentType {
 
 ---
 
-## 8. 実行タイミングの設計
+## 9. 実行タイミングの設計
 
 ### 方針: 同期でプロトタイプ → 非同期に切り替え
 
@@ -196,7 +222,7 @@ submitAssignment()
 
 ---
 
-## 9. AI採点失敗時の処理
+## 10. AI採点失敗時の処理
 
 ```
 AI採点実行
@@ -215,7 +241,7 @@ AI採点実行
 
 ---
 
-## 10. AWS Bedrock の構成
+## 11. AWS Bedrock の構成
 
 ### 基本構成（RAGプロジェクトの実績を踏まえて確定）
 
@@ -278,40 +304,88 @@ environment:
   - AWS_REGION=${AWS_REGION}
 ```
 
-### ベクトルDBについて
+### ベクトルDB（Qdrant）
 
-現在のAI採点ではベクトルDBは**不要**。課題の `description`（要件）と受講者の `textAnswer` を
-プロンプトに直接渡すだけで十分に採点可能。
+初期段階からQdrantを導入し、段階的に活用範囲を拡大する。
+Qdrantコンテナはdocker-compose.ymlに最初から含め、将来の拡張に備える。
 
-将来的にベクトルDBが必要になりうるケース:
+> **参考**: rag-bedrockプロジェクトで Qdrant + Titan Embeddings v2 の実績あり。
 
-| ケース | 用途 |
-|-------|------|
-| 模範解答との類似度比較 | 模範解答をベクトル化し、回答の類似度で採点補助 |
-| 過去の採点履歴の参照 | 過去の合格/不合格回答を検索し、採点の一貫性を担保 |
-| カリキュラムAI作成UI（Phase 3） | 既存教材をRAG検索して新カリキュラムを生成 |
+#### Qdrant 構成
 
-> Phase 3のカリキュラムAI作成UIでは、RAGプロジェクト（rag-bedrock）の構成を活用できる可能性あり。
-
----
-
-## 11. 実装箇所の想定
-
-| ファイル | 変更内容 |
-|---------|---------|
-| `app/prisma/schema.prisma` | AssignmentTypeにtext追加、ReviewStatusにai_reviewed追加 |
-| `app/src/lib/ai-grading.ts` | 新規：executeAiGrading関数（Bedrock呼び出し・プロンプト構築・結果パース） |
-| `app/src/app/curricula/actions.ts` | submitAssignment後にexecuteAiGradingを呼び出し |
-| `app/src/app/admin/submissions/[id]/page.tsx` | AI採点結果の表示エリア追加 |
-| `app/src/app/admin/submissions/[id]/_components/` | AI再採点ボタンコンポーネント追加 |
-| `app/src/app/admin/submissions/actions.ts` | AI再採点アクション追加、gradeSubmissionでAI採点済みReviewを更新 |
-| `.env` | AWS_REGION / BEDROCK_MODEL_ID 追加 |
-| `docker-compose.yml` | AWS credentials マウント追加 |
-| `package.json` | `@aws-sdk/client-bedrock-runtime` 追加 |
+| 項目 | 設定 |
+|------|------|
+| コンテナ | `qdrant/qdrant` |
+| ポート | 6333（REST API） |
+| SDK | `@qdrant/js-client-rest`（TypeScript） |
+| Embeddingモデル | Amazon Titan Text Embeddings v2 |
+| ベクトル次元 | 1024 |
+| 距離計算 | コサイン類似度 |
 
 ---
 
-## 12. 未決定・要検討事項
+## 12. 実装ステップと工数見積もり
+
+### Step 1: 基盤準備 + AI採点の基本機能（見積: 4-5日）
+
+Qdrantコンテナ導入・Bedrock接続・AI採点の基本フローを構築する。
+AI採点はプロンプト直接渡し（ベクトル検索なし）で動かす。
+
+| タスク | 見積 | ファイル |
+|-------|------|---------|
+| Prismaスキーマ変更（text型・ai_reviewed追加） | 0.5日 | `schema.prisma` |
+| docker-compose.yml にQdrant追加・AWS credentials設定 | 0.5日 | `docker-compose.yml`, `.env` |
+| AWS Bedrock接続・Embedding関数の作成 | 0.5日 | `app/src/lib/bedrock.ts`（新規） |
+| executeAiGrading関数（採点ロジック本体） | 1日 | `app/src/lib/ai-grading.ts`（新規） |
+| submitAssignment後のAI採点トリガー | 0.5日 | `app/src/app/curricula/actions.ts` |
+| 講師画面のAI採点結果表示・再採点ボタン | 1日 | `admin/submissions/[id]/` |
+| 動作確認・プロンプト調整 | 0.5日 | — |
+
+### Step 2: 模範解答の活用（見積: 2-3日）
+
+課題の模範解答をベクトル化し、AI採点時に類似コンテンツをプロンプトに含める。
+
+| タスク | 見積 | 説明 |
+|-------|------|------|
+| 模範解答フィールドの追加（Assignmentモデル） | 0.5日 | `modelAnswer` フィールド追加 |
+| 模範解答のベクトル化・Qdrant保存 | 1日 | 課題作成/更新時にベクトル化 |
+| AI採点時のベクトル検索→プロンプト注入 | 1日 | 類似コンテンツを採点プロンプトに含める |
+
+### Step 3: 過去採点データの蓄積・活用（見積: 2日）
+
+採点完了時に提出内容+結果をベクトル化し、新しい採点時に過去の類似事例を参照する。
+
+| タスク | 見積 | 説明 |
+|-------|------|------|
+| 採点完了時のベクトル化・保存 | 1日 | gradeSubmission後に自動保存 |
+| AI採点時の過去事例検索→プロンプト注入 | 1日 | 採点の一貫性を向上 |
+
+### Step 4: 学習ガイド・カリキュラムAI活用（見積: 3-4日、Phase 3で実施）
+
+カリキュラムコンテンツをベクトル化し、RAG検索で活用する。
+
+| タスク | 見積 | 説明 |
+|-------|------|------|
+| カリキュラムコンテンツのベクトル化 | 1日 | import-content時にベクトルも生成 |
+| 学習ガイドのAI質問応答 | 1-2日 | 受講者が質問→RAG検索→AI回答 |
+| カリキュラムAI作成UI | 1-2日 | 既存教材をRAG検索→新コンテンツ生成 |
+
+### 工数まとめ
+
+| ステップ | 見積 | フェーズ | 依存 |
+|---------|------|---------|------|
+| Step 1: 基盤 + AI採点基本 | 4-5日 | Phase 2-1 | — |
+| Step 2: 模範解答活用 | 2-3日 | Phase 2-1 | Step 1 |
+| Step 3: 過去採点データ活用 | 2日 | Phase 2-1 | Step 1 |
+| Step 4: 学習ガイド・カリキュラムAI | 3-4日 | Phase 3-3 | Step 1 |
+| **合計** | **11-14日** | | |
+
+> Step 2〜4は独立しており、Step 1完了後に任意の順序で進められる。
+> 各ステップ完了時点で動作する状態を維持し、論理破綻が起きないよう段階的に進める。
+
+---
+
+## 13. 未決定・要検討事項
 
 - [ ] AWS Bedrockで使用するモデルの選定（コスト・精度のバランス）
 - [ ] AI採点の出力フォーマットの詳細（評価基準の項目設計）
@@ -327,4 +401,6 @@ environment:
 |------|------|
 | 2026-03-20 | 初版作成 |
 | 2026-03-20 | 方針決定: text型追加、同期→非同期設計、AI採点失敗時のリトライ設計を反映 |
-| 2026-03-20 | AWS Bedrock構成確定（rag-bedrockプロジェクト調査結果を反映）、ベクトルDB不要の判断を記載 |
+| 2026-03-20 | AWS Bedrock構成確定（rag-bedrockプロジェクト調査結果を反映） |
+| 2026-03-20 | ベクトルDB（Qdrant）導入方針決定、Step 1〜4の段階的実装計画・工数見積もりを追加 |
+| 2026-03-20 | 不正対策（ペースト禁止・AI生成回答検知）を追加 |
