@@ -30,17 +30,18 @@
 
 ## Phase 2: AI採点・テスト・機能拡充 ← 現在のフェーズ
 
-### 2-1. AI採点機能（AWS Bedrock + Qdrant） 🔴 次の着手
+### 2-1. AI採点機能（AWS Bedrock + Qdrant）
 
 > 詳細設計: [ai-grading-design.md](./design/ai-grading-design.md)
 
-#### Step 1: 基盤準備 + AI採点の基本機能（見積: 4-5日）
-- [ ] Prismaスキーマ変更（AssignmentTypeにtext追加、ReviewStatusにai_reviewed追加）
-- [ ] docker-compose.yml にQdrant追加・AWS credentials設定
-- [ ] AWS Bedrock接続・Embedding関数の作成
-- [ ] executeAiGrading関数（採点ロジック本体）
-- [ ] submitAssignment後のAI採点トリガー（同期処理）
-- [ ] 講師画面のAI採点結果表示・AI再採点ボタン
+#### Step 1: 基盤準備 + AI採点の基本機能（見積: 4-5日） ✅ 実装済み
+- [x] Prismaスキーマ変更（AssignmentTypeにtext追加、ReviewStatusにai_reviewed追加）
+- [x] docker-compose.yml にQdrant追加・AWS credentials設定
+- [x] AWS Bedrock接続・Embedding関数の作成
+- [x] executeAiGrading関数（採点ロジック本体）
+- [x] submitAssignment後のAI採点トリガー（同期処理）
+- [x] 講師画面のAI採点結果表示・AI再採点ボタン
+- [x] テキスト回答のペースト禁止・AI生成回答検知
 - [ ] 動作確認・プロンプト調整
 
 #### Step 2: 模範解答の活用（見積: 2-3日）
