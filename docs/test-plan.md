@@ -8,13 +8,13 @@
 
 ## 進捗
 
-**全体進捗: 14 / 211 テストケース（7%）**
+**全体進捗: 23 / 211 テストケース（11%）**
 
 | # | テストファイル | ケース数 | 状態 |
 |---|--------------|---------|------|
 | 0 | テスト基盤セットアップ | - | [x] 完了 |
 | 1 | `src/lib/__tests__/csv.test.ts` | 14 | [x] 完了（14 passed）|
-| 2 | `src/lib/__tests__/notifications.test.ts` | 9 | [ ] 未着手 |
+| 2 | `src/lib/__tests__/notifications.test.ts` | 9 | [x] 完了（9 passed）|
 | 3 | `src/lib/__tests__/bedrock.test.ts` | 9 | [ ] 未着手 |
 | 4 | `src/lib/__tests__/ai-grading.test.ts` | 17 | [ ] 未着手 |
 | 5 | `src/app/curricula/__tests__/actions.test.ts` | 21 | [ ] 未着手 |
