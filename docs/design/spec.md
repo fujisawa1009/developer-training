@@ -516,7 +516,8 @@ Claude API が自動評価（コード分析 or テキスト分析）
 |------------|------|
 | [db-design.md](./db-design.md) | Prisma Schema・テーブル構成・RLS設計 |
 | [api-design.md](./api-design.md) | REST APIエンドポイント一覧・リクエスト/レスポンス仕様 |
-| [development-status.md](../development-status.md) | 開発状況・追加開発リスト |
+| [ai-grading-design.md](./ai-grading-design.md) | AI採点機能の設計 |
+| [development-status.md](../development-status.md) | 開発ロードマップ |
 
 ---
 
