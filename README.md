@@ -206,6 +206,9 @@ docker compose up -d --build
 
 課題提出時にAIが自動採点を行います。AWS Bedrock 上の Claude モデルを **AWS SDK（`@aws-sdk/client-bedrock-runtime`）** 経由でNode.jsから直接呼び出しており、**AWS CLI のインストールは不要です**。
 
+<img width="601" height="357" alt="AI採点" src="https://github.com/user-attachments/assets/3adf4b57-a97d-4e4f-82a8-7ae1b6d8b7d4" />
+
+
 ### 仕組み
 
 ```
