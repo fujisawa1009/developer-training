@@ -25,7 +25,9 @@
       "Bash(docker compose restart:*)",
       "Bash(docker compose exec:*)",
       "Bash(git -C /Users/fujisawa/Projects/developer-training show HEAD:tmp.md)",
-      "Bash(git -C /Users/fujisawa/Projects/developer-training log --diff-filter=D --name-only --format=%H -- tmp.md)"
+      "Bash(git -C /Users/fujisawa/Projects/developer-training log --diff-filter=D --name-only --format=%H -- tmp.md)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nTest #5: 受講者カリキュラムActions テスト（21 passed）\n\ncompleteLesson, startAssignment, submitAssignment のユニットテスト。\n通知・AI採点のモックファイルも追加。\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }
