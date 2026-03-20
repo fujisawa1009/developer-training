@@ -16,7 +16,12 @@
       "Bash(find:*)",
       "Bash(cat:*)",
       "mcp__ide__getDiagnostics",
-      "Bash(docker ps:*)"
+      "Bash(docker ps:*)",
+      "Bash(aws:*)",
+      "WebSearch",
+      "Bash(docker compose exec app npm ls:*)",
+      "Bash(docker compose up:*)",
+      "Bash(docker compose exec app npm install:*)"
     ]
   }
 }

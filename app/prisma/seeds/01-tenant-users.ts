@@ -126,9 +126,9 @@ export async function seedTenantAndUsers() {
   });
 
   console.log(`✅ ユーザー作成完了`);
-  console.log(`   管理者:   admin@example.com / Admin1234!`);
-  console.log(`   講師:     instructor@example.com / Instructor1234!`);
-  console.log(`   受講者:   learner@example.com / Learner1234!`);
+  console.log(`   管理者:   admin@example.com / password123`);
+  console.log(`   講師:     instructor@example.com / password123`);
+  console.log(`   受講者:   learner@example.com / password123`);
   console.log(`   受講者: learner2@example.com / password123`);
   console.log(`   受講者: learner3@example.com / password123`);
   console.log(`   受講者: learner4@example.com / password123`);

@@ -10,9 +10,9 @@ seed 実行後に以下のアカウントが作成されます。
 
 | ロール | メールアドレス | パスワード |
 |--------|---------------|----------|
-| 管理者 | admin@example.com | password123 |
-| 講師 | instructor@example.com | password123 |
-| 受講者 | learner@example.com | password123 |
+| 管理者 | admin@example.com | y* |
+| 講師 | instructor@example.com | y* |
+| 受講者 | learner@example.com | y* |
 
 ---
 
@@ -76,30 +76,19 @@ docker compose up -d --build
 ### 4. 初期データの投入
 
 ```bash
-#DBリセット（全削除 + 再マイグレーション + seed）
-docker compose exec app php artisan optimize:clear
-docker compose exec app php artisan migrate:fresh --seed
+# 1. seed実行（テナント・ユーザー作成）
+docker compose exec app npm run seed
 
- 今すぐ実行すべき手順
+# 2. コンテンツインポート
+docker compose exec app npm run import-content
 
-  # 1. 重複削除
-  docker compose exec app npx tsx prisma/cleanup-duplicates.ts
-
-  # 2. コンテンツインポート
-  docker compose exec app npm run import-content
-
-  # 3. デモ進捗投入
-  docker compose exec app npm run seed:demo
-
-  # npm run seed は実行不要です（既にテナント・ユーザーデータが存在し、修正済みseedは冪等性があるため）
-
-  # 💡 カリキュラム変更時
-
-  # ファイル編集後
-  docker compose exec app npm run import-content
-
-
+# 3. デモ進捗投入
+docker compose exec app npm run seed:demo
 ```
+
+> seed は冪等性があるため、再実行しても安全です。
+
+カリキュラムコンテンツ変更時は `npm run import-content` のみ再実行してください。
 
 ### 5. 動作確認
 
@@ -137,6 +126,22 @@ docker compose down -v
 docker compose up -d --build
 ```
 
+### npmパッケージの追加・更新
+
+`docker-compose.yml` で `node_modules` を匿名ボリュームとしてマウントしているため、`docker compose up -d --build` だけではパッケージが反映されません。
+
+```bash
+# 方法1: コンテナ内で直接インストール（DBデータを保持）
+docker compose exec app npm install <パッケージ名>
+
+# 方法2: ボリューム削除 + 再ビルド（DBデータも削除される）
+docker compose down -v
+docker compose up -d --build
+docker compose exec app npm run seed
+docker compose exec app npm run import-content
+docker compose exec app npm run seed:demo
+```
+
 ### カリキュラムコンテンツのみ更新
 
 `content/` 以下のファイルを編集後:
@@ -161,22 +166,103 @@ docker compose exec app npx prisma migrate dev --name <変更内容>
 cp .env.example .env
 ```
 
-`.env` を編集します（`docker-compose.prod.yml` が参照します）。
+`.env` を編集します。
 
 ```env
+# 本番用 compose ファイルに切り替え
+COMPOSE_FILE=docker-compose.prod.yml
+
 AUTH_SECRET=<openssl rand -base64 32 で生成した値>
 AUTH_URL=https://<本番ドメイン>
+
+# DB設定
+POSTGRES_USER=devtraining
+POSTGRES_PASSWORD=<強固なパスワードを設定>
+POSTGRES_DB=devtraining
+
+# DBデータの保存先（ホスト側の絶対パス推奨）
+DB_DATA_PATH=/var/data/postgres
+
+# AWS Bedrock
+AWS_REGION=ap-northeast-1
+BEDROCK_MODEL_ID=anthropic.claude-haiku-4-5-20251001-v1:0
 ```
+
+> **DBの永続化:** 本番環境ではnamed volumeではなくホスト側のディレクトリにバインドマウントされます。`docker compose down -v` を実行してもDBデータは削除されません。
 
 ### 2. 起動
 
 ```bash
-docker compose -f docker-compose.prod.yml up -d --build
+docker compose up -d --build
 ```
 
 ### 3. 初期データの投入
 
 > **注意:** 本番環境では初期パスワードを必ず変更してください。
+
+---
+
+## AI採点機能（AWS Bedrock）
+
+課題提出時にAIが自動採点を行います。AWS Bedrock 上の Claude モデルを **AWS SDK（`@aws-sdk/client-bedrock-runtime`）** 経由でNode.jsから直接呼び出しており、**AWS CLI のインストールは不要です**。
+
+### 仕組み
+
+```
+受講者が課題提出
+  → Server Action (submitAssignment)
+    → AWS SDK (BedrockRuntimeClient)
+      → AWS Bedrock API (Claude)
+        → AI採点結果を DB に保存
+```
+
+- アプリケーション内の `@aws-sdk/client-bedrock-runtime` で Bedrock API を直接呼び出します
+- Docker Compose でホストマシンの `~/.aws/credentials` をコンテナにマウントして認証します
+- AWS CLI は使用しません（インストール不要）
+
+### 前提条件（AWS側）
+
+1. **IAMユーザー/ロール** に以下の権限が付与されていること:
+   - `bedrock:InvokeModel`（対象モデルへのアクセス許可）
+2. **Bedrock モデルアクセス** が有効化されていること:
+   - AWS Console → Amazon Bedrock → モデルアクセス から使用するモデルを有効化
+
+### 設定手順
+
+#### 1. AWS認証情報の設定
+
+ホストマシンに `~/.aws/credentials` を作成します:
+
+```ini
+[default]
+aws_access_key_id = YOUR_ACCESS_KEY
+aws_secret_access_key = YOUR_SECRET_KEY
+```
+
+> `docker-compose.yml` により `~/.aws/credentials` と `~/.aws/config` がコンテナ内にマウントされます。
+
+#### 2. 環境変数の設定
+
+`.env` に以下を設定します:
+
+```env
+AWS_REGION=ap-northeast-1
+BEDROCK_MODEL_ID=anthropic.claude-haiku-4-5-20251001-v1:0
+```
+
+| 変数名 | 説明 | デフォルト値 |
+|--------|------|-------------|
+| `AWS_REGION` | Bedrockを利用するリージョン | `ap-northeast-1` |
+| `BEDROCK_MODEL_ID` | 使用するClaudeモデルID | （必須・未設定時はAI採点スキップ） |
+
+### 関連ファイル
+
+| ファイル | 説明 |
+|---------|------|
+| `app/src/lib/bedrock.ts` | Bedrock クライアント・Claude 呼び出し |
+| `app/src/lib/ai-grading.ts` | AI採点ロジック（プロンプト・スコア算出） |
+| `app/src/app/curricula/actions.ts` | 課題提出時にAI採点を実行 |
+| `app/src/app/admin/submissions/[id]/page.tsx` | 講師がAI採点結果を確認・最終採点 |
 
 ---
 
