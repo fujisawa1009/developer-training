@@ -7,7 +7,7 @@ import { LessonForm } from "../../../../_components/LessonForm";
 import { updateLesson } from "../../../../actions";
 
 type LessonType = "text" | "video" | "assignment";
-type AssignmentType = "git" | "sql" | "program" | "debug";
+type AssignmentType = "git" | "sql" | "program" | "debug" | "text";
 
 type Props = {
   params: Promise<{ id: string; lessonId: string }>;

@@ -320,6 +320,7 @@ enum AssignmentType {
   sql
   program
   debug
+  text      // テキスト記述（レポート・説明問題）
 }
 
 model Submission {
@@ -361,8 +362,9 @@ model Review {
 }
 
 enum ReviewStatus {
-  pending   // 採点待ち
-  completed // 採点完了
+  pending      // 採点待ち
+  ai_reviewed  // AI採点完了・講師レビュー待ち
+  completed    // 採点完了
 }
 
 model SubmissionComment {

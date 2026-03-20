@@ -93,8 +93,8 @@ function SubmitForm({
         </div>
       )}
 
-      {/* SQL/Debug → テキスト回答 */}
-      {(assignmentType === "sql" || assignmentType === "debug") && (
+      {/* SQL/Debug/Text → テキスト回答 */}
+      {(assignmentType === "sql" || assignmentType === "debug" || assignmentType === "text") && (
         <div className="space-y-1.5">
           <Label htmlFor="textAnswer">回答 *</Label>
           <textarea
@@ -104,9 +104,15 @@ function SubmitForm({
             placeholder={
               assignmentType === "sql"
                 ? "SELECT * FROM ... (SQLを記述)"
-                : "バグの原因と修正方法を記述..."
+                : assignmentType === "debug"
+                ? "バグの原因と修正方法を記述..."
+                : "回答を入力してください..."
             }
-            className="w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm font-mono outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors resize-y"
+            onPaste={(e) => {
+              e.preventDefault();
+              alert("ペーストは禁止されています。自分の言葉で入力してください。");
+            }}
+            className={`w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors resize-y ${assignmentType !== "text" ? "font-mono" : ""}`}
           />
         </div>
       )}
@@ -127,6 +133,10 @@ function SubmitForm({
                 id="textAnswer"
                 name="textAnswer"
                 rows={6}
+                onPaste={(e) => {
+                  e.preventDefault();
+                  alert("ペーストは禁止されています。自分の言葉で入力してください。");
+                }}
                 className="w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors resize-y"
               />
             </div>

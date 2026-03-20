@@ -6,6 +6,8 @@ import { ArrowLeft, CheckCircle2, XCircle, Clock, Hash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { GradeForm } from "./_components/GradeForm";
+import { AiGradingDisplay } from "./_components/AiGradingDisplay";
+import { RetryAiGradingButton } from "./_components/RetryAiGradingButton";
 import { CommentThread } from "@/components/CommentThread";
 import { gradeSubmission } from "../actions";
 import { addComment } from "@/app/submissions/actions";
@@ -156,6 +158,26 @@ export default async function SubmissionDetailPage({ params }: Props) {
           <p className="text-sm text-muted-foreground">提出内容がありません</p>
         )}
       </div>
+
+      {/* AI採点結果 */}
+      {submission.review?.aiComment || submission.review?.aiScore ? (
+        <div className="space-y-2">
+          <AiGradingDisplay
+            aiScore={submission.review.aiScore}
+            aiComment={submission.review.aiComment}
+          />
+          <div className="flex justify-end">
+            <RetryAiGradingButton submissionId={id} />
+          </div>
+        </div>
+      ) : submission.status !== "draft" ? (
+        <div className="rounded-lg border bg-white p-6 space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">AI採点は未実施です</p>
+            <RetryAiGradingButton submissionId={id} />
+          </div>
+        </div>
+      ) : null}
 
       {/* 採点フォーム or 採点済み結果 */}
       {canGrade ? (

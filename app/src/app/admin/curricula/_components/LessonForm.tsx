@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import type { FormState } from "../actions";
 
 type LessonType = "text" | "video" | "assignment";
-type AssignmentType = "git" | "sql" | "program" | "debug";
+type AssignmentType = "git" | "sql" | "program" | "debug" | "text";
 
 type DefaultValues = {
   title?: string;
@@ -37,6 +37,7 @@ const ASSIGNMENT_TYPE_LABELS: Record<AssignmentType, string> = {
   sql: "SQL",
   program: "プログラミング",
   debug: "デバッグ",
+  text: "テキスト記述",
 };
 
 export function LessonForm({ action, defaultValues, submitLabel = "レッスンを追加" }: Props) {

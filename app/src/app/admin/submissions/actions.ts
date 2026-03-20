@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createNotification } from "@/lib/notifications";
+import { executeAiGrading } from "@/lib/ai-grading";
 
 export type GradeFormState = {
   errors?: Record<string, string[]>;
@@ -126,4 +127,28 @@ export async function gradeSubmission(
   revalidatePath("/admin/submissions");
   revalidatePath(`/admin/submissions/${submissionId}`);
   redirect("/admin/submissions");
+}
+
+// AI再採点
+export async function retryAiGrading(submissionId: string): Promise<void> {
+  const session = await auth();
+  if (!session) throw new Error("認証が必要です");
+
+  const role = session.user.role as string;
+  if (role !== "admin" && role !== "instructor") {
+    throw new Error("権限がありません");
+  }
+
+  const submission = await prisma.submission.findFirst({
+    where: {
+      id: submissionId,
+      assignment: { tenantId: session.user.tenantId },
+    },
+  });
+
+  if (!submission) throw new Error("提出物が見つかりません");
+
+  await executeAiGrading(submissionId);
+
+  revalidatePath(`/admin/submissions/${submissionId}`);
 }

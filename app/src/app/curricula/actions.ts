@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createNotificationForMany } from "@/lib/notifications";
+import { executeAiGrading } from "@/lib/ai-grading";
 
 export type SubmitFormState = {
   errors?: Record<string, string[]>;
@@ -128,6 +129,13 @@ export async function submitAssignment(
       `${session.user.name} さんが課題「${updated.assignment.title}」を提出しました`,
       `/admin/submissions/${submissionId}`,
     );
+  }
+
+  // AI自動採点を実行（失敗しても提出は成功扱い）
+  try {
+    await executeAiGrading(submissionId);
+  } catch (e) {
+    console.error("AI採点エラー:", e);
   }
 
   revalidatePath(`/curricula/${curriculumId}/lessons/${lessonId}`);

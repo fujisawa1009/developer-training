@@ -16,6 +16,14 @@ services:
       timeout: 5s
       retries: 5
 
+  qdrant:
+    image: qdrant/qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
   app:
     build:
       context: ./app
@@ -27,6 +35,9 @@ services:
       AUTH_SECRET: ${AUTH_SECRET:-change-me-in-production-use-openssl-rand-base64-32}
       AUTH_URL: ${AUTH_URL:-http://localhost:3001}
       NODE_ENV: development
+      AWS_REGION: ${AWS_REGION:-ap-northeast-1}
+      BEDROCK_MODEL_ID: ${BEDROCK_MODEL_ID:-}
+      QDRANT_URL: http://qdrant:6333
     volumes:
       # ソースコードをマウント（ホットリロード対応）
       - ./app:/app
@@ -34,6 +45,9 @@ services:
       - /app/node_modules
       - /app/.next
       - /app/src/generated
+      # AWS認証情報（Bedrock用）
+      - ~/.aws/credentials:/root/.aws/credentials:ro
+      - ~/.aws/config:/root/.aws/config:ro
     depends_on:
       db:
         condition: service_healthy
@@ -45,3 +59,4 @@ services:
 
 volumes:
   postgres_data:
+  qdrant_data:
