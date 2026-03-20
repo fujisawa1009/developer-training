@@ -6,6 +6,31 @@
 
 ---
 
+## 進捗
+
+**全体進捗: 14 / 211 テストケース（7%）**
+
+| # | テストファイル | ケース数 | 状態 |
+|---|--------------|---------|------|
+| 0 | テスト基盤セットアップ | - | [x] 完了 |
+| 1 | `src/lib/__tests__/csv.test.ts` | 14 | [x] 完了（14 passed）|
+| 2 | `src/lib/__tests__/notifications.test.ts` | 9 | [ ] 未着手 |
+| 3 | `src/lib/__tests__/bedrock.test.ts` | 9 | [ ] 未着手 |
+| 4 | `src/lib/__tests__/ai-grading.test.ts` | 17 | [ ] 未着手 |
+| 5 | `src/app/curricula/__tests__/actions.test.ts` | 21 | [ ] 未着手 |
+| 6 | `src/app/admin/submissions/__tests__/actions.test.ts` | 27 | [ ] 未着手 |
+| 7 | `src/app/admin/users/__tests__/actions.test.ts` | 28 | [ ] 未着手 |
+| 8 | `src/app/admin/curricula/__tests__/actions.test.ts` | 30 | [ ] 未着手 |
+| 9 | `src/app/admin/curriculum-plans/__tests__/actions.test.ts` | 22 | [ ] 未着手 |
+| 10 | `src/app/submissions/__tests__/actions.test.ts` | 17 | [ ] 未着手 |
+| 11 | `src/app/notifications/__tests__/actions.test.ts` | 8 | [ ] 未着手 |
+| 12 | `src/app/checklists/[periodId]/__tests__/actions.test.ts` | 14 | [ ] 未着手 |
+| 13 | `src/app/admin/evaluation-periods/__tests__/actions.test.ts` | 8 | [ ] 未着手 |
+| 14 | `src/app/admin/checklists/__tests__/actions.test.ts` | 9 | [ ] 未着手 |
+| 15 | `src/auth/__tests__/index.test.ts` | 4 | [ ] 未着手 |
+
+---
+
 ## 概要
 
 手動テストに先立ち、Server Actions・コアロジックのユニットテストを Vitest で実装する。
