@@ -21,7 +21,9 @@
       "WebSearch",
       "Bash(docker compose exec app npm ls:*)",
       "Bash(docker compose up:*)",
-      "Bash(docker compose exec app npm install:*)"
+      "Bash(docker compose exec app npm install:*)",
+      "Bash(docker compose restart:*)",
+      "Bash(docker compose exec:*)"
     ]
   }
 }

@@ -185,7 +185,7 @@ DB_DATA_PATH=/var/data/postgres
 
 # AWS Bedrock
 AWS_REGION=ap-northeast-1
-BEDROCK_MODEL_ID=anthropic.claude-haiku-4-5-20251001-v1:0
+BEDROCK_MODEL_ID=jp.anthropic.claude-haiku-4-5-20251001-v1:0
 ```
 
 > **DBの永続化:** 本番環境ではnamed volumeではなくホスト側のディレクトリにバインドマウントされます。`docker compose down -v` を実行してもDBデータは削除されません。
@@ -247,7 +247,7 @@ aws_secret_access_key = YOUR_SECRET_KEY
 
 ```env
 AWS_REGION=ap-northeast-1
-BEDROCK_MODEL_ID=anthropic.claude-haiku-4-5-20251001-v1:0
+BEDROCK_MODEL_ID=jp.anthropic.claude-haiku-4-5-20251001-v1:0
 ```
 
 | 変数名 | 説明 | デフォルト値 |
