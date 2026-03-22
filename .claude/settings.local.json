@@ -27,7 +27,12 @@
       "Bash(git -C /Users/fujisawa/Projects/developer-training show HEAD:tmp.md)",
       "Bash(git -C /Users/fujisawa/Projects/developer-training log --diff-filter=D --name-only --format=%H -- tmp.md)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nTest #5: 受講者カリキュラムActions テスト（21 passed）\n\ncompleteLesson, startAssignment, submitAssignment のユニットテスト。\n通知・AI採点のモックファイルも追加。\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nTest #5: 受講者カリキュラムActions テスト（21 passed）\n\ncompleteLesson, startAssignment, submitAssignment のユニットテスト。\n通知・AI採点のモックファイルも追加。\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nTest #6: 管理者採点Actions テスト（25 passed）\n\ngradeSubmission, retryAiGrading のユニットテスト。\ndevelopment-status.md のテストPhase 1-3を完了に更新。\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nTest #7: ユーザー管理Actions テスト（24 passed）\n\ncreateUser, updateUser, deleteUser のユニットテスト。\n権限・バリデーション・重複チェック・テナント分離・トランザクションを検証。\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nTest #8: カリキュラム管理Actions テスト（30 passed）\n\ncreateCurriculum, updateCurriculum, deleteCurriculum,\ncreateLesson, updateLesson, deleteLesson, reorderLessons,\nbulkCreateCurricula のユニットテスト。\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nTest #9: カリキュラムプラン管理Actions テスト（20 passed）\n\ncreatePlan, updatePlan, deletePlan, addCurriculumToPlan,\nremoveCurriculumFromPlan, reorderCurriculumItems,\nassignPlanToUser, unassignPlanFromUser のユニットテスト。\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit:*)"
     ]
   }
 }
