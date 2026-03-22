@@ -8,14 +8,14 @@
 
 ## 進捗
 
-**全体進捗: 0 / 45 テストケース（0%）**
+**全体進捗: 14 / 45 テストケース（31%）**
 
 | # | テストファイル | ケース数 | 状態 |
 |---|--------------|---------|------|
 | 0 | テスト基盤セットアップ | - | [x] 完了 |
-| 1 | `e2e/auth.spec.ts` | 5 | [ ] 未着手 |
-| 2 | `e2e/dashboard.spec.ts` | 4 | [ ] 未着手 |
-| 3 | `e2e/notifications.spec.ts` | 5 | [ ] 未着手 |
+| 1 | `e2e/auth.spec.ts` | 5 | [x] 完了（5 passed） |
+| 2 | `e2e/dashboard.spec.ts` | 4 | [x] 完了（4 passed） |
+| 3 | `e2e/notifications.spec.ts` | 5 | [x] 完了（5 passed） |
 | 4 | `e2e/curricula.spec.ts` | 7 | [ ] 未着手 |
 | 5 | `e2e/submissions.spec.ts` | 6 | [ ] 未着手 |
 | 6 | `e2e/admin-users.spec.ts` | 5 | [ ] 未着手 |
