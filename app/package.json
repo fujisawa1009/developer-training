@@ -10,6 +10,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
     "seed": "npx prisma generate && npx tsx prisma/seed.ts",
     "seed:demo": "npx prisma generate && npx tsx prisma/seed-demo.ts",
     "import-content": "npx prisma generate && npx tsx content/import.ts"
@@ -47,6 +49,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
