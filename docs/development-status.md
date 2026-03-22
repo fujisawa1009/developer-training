@@ -74,7 +74,8 @@
   - 管理画面の課題編集UIに設定項目追加
   - AssignmentSection.tsx のペースト制御を課題設定に基づいて切り替え
 
-#### テスト（詳細: [test-plan.md](./test-plan.md)）— ✅ 全228テスト合格
+#### テスト — ✅ 全228ユニットテスト合格
+- 詳細: [unit-test-plan.md](./unit-test-plan.md)（ユニットテスト）/ [e2e-test-plan.md](./e2e-test-plan.md)（E2Eテスト）
 - [x] Phase 1: テスト基盤セットアップ（Vitest導入、モックファクトリ）
 - [x] Phase 2: 純粋関数テスト（csv, notifications）
 - [x] Phase 3: コアロジックテスト（bedrock, ai-grading）
@@ -82,7 +83,7 @@
 - [x] Phase 5: 残りServer Actionsテスト（コメント、通知、チェックリスト等）
 - [x] Phase 6: 認証テスト
 - [ ] 手動テスト（全画面・主要フローの仕様適合確認）
-- [ ] E2Eテスト導入（Playwright：主要フロー）
+- [ ] E2Eテスト導入（Playwright：主要フロー）— 詳細: [e2e-test-plan.md](./e2e-test-plan.md)
 
 ### 2-3. グループ管理の改修（旧: 年度コーホート）
 
