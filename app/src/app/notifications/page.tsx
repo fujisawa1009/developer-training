@@ -3,9 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Bell, CheckCheck } from "lucide-react";
-import { markAllAsRead, markAsRead } from "./actions";
+import { markAllAsRead } from "./actions";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button-variants";
+import { NotificationItem } from "./_components/NotificationItem";
 
 export default async function NotificationsPage() {
   const session = await auth();
@@ -68,43 +69,10 @@ export default async function NotificationsPage() {
         ) : (
           <div className="rounded-lg border bg-white overflow-hidden divide-y">
             {notifications.map((notification) => (
-              <form
+              <NotificationItem
                 key={notification.id}
-                action={async () => {
-                  "use server";
-                  await markAsRead(notification.id);
-                }}
-              >
-                <button
-                  type="submit"
-                  className={`w-full text-left px-5 py-4 hover:bg-gray-50 transition-colors flex items-start gap-3 ${
-                    !notification.isRead ? "bg-blue-50/50" : ""
-                  }`}
-                >
-                  <div
-                    className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
-                      notification.isRead ? "bg-gray-300" : "bg-blue-500"
-                    }`}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm ${!notification.isRead ? "font-medium" : ""}`}>
-                      {notification.message}
-                    </p>
-                    {notification.link && (
-                      <Link
-                        href={notification.link}
-                        className="text-xs text-blue-600 hover:underline mt-0.5 block"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        詳細を見る →
-                      </Link>
-                    )}
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {new Date(notification.createdAt).toLocaleString("ja-JP")}
-                    </p>
-                  </div>
-                </button>
-              </form>
+                notification={notification}
+              />
             ))}
           </div>
         )}
