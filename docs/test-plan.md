@@ -8,7 +8,7 @@
 
 ## 進捗
 
-**全体進捗: 208 / 211 テストケース（99%）**
+**全体進捗: 215 テストケース完了（残り #14, #15）**
 
 | # | テストファイル | ケース数 | 状態 |
 |---|--------------|---------|------|
@@ -25,7 +25,7 @@
 | 10 | `src/app/submissions/__tests__/actions.test.ts` | 17 | [x] 完了（17 passed）|
 | 11 | `src/app/notifications/__tests__/actions.test.ts` | 8 | [x] 完了（8 passed）|
 | 12 | `src/app/checklists/[periodId]/__tests__/actions.test.ts` | 14 | [x] 完了（14 passed）|
-| 13 | `src/app/admin/evaluation-periods/__tests__/actions.test.ts` | 8 | [ ] 未着手 |
+| 13 | `src/app/admin/evaluation-periods/__tests__/actions.test.ts` | 7 | [x] 完了（7 passed）|
 | 14 | `src/app/admin/checklists/__tests__/actions.test.ts` | 9 | [ ] 未着手 |
 | 15 | `src/auth/__tests__/index.test.ts` | 4 | [ ] 未着手 |
 
