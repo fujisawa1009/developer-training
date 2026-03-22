@@ -32,7 +32,12 @@
       "Bash(git commit -m \"$\\(cat <<''EOF''\nTest #7: ユーザー管理Actions テスト（24 passed）\n\ncreateUser, updateUser, deleteUser のユニットテスト。\n権限・バリデーション・重複チェック・テナント分離・トランザクションを検証。\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nTest #8: カリキュラム管理Actions テスト（30 passed）\n\ncreateCurriculum, updateCurriculum, deleteCurriculum,\ncreateLesson, updateLesson, deleteLesson, reorderLessons,\nbulkCreateCurricula のユニットテスト。\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nTest #9: カリキュラムプラン管理Actions テスト（20 passed）\n\ncreatePlan, updatePlan, deletePlan, addCurriculumToPlan,\nremoveCurriculumFromPlan, reorderCurriculumItems,\nassignPlanToUser, unassignPlanFromUser のユニットテスト。\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(node --version:*)",
+      "Bash(npx playwright install:*)",
+      "Bash(npx playwright:*)",
+      "Bash(npx @playwright/test:*)",
+      "Bash(./node_modules/.bin/playwright test:*)"
     ]
   }
 }
