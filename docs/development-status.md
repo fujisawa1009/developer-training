@@ -75,10 +75,10 @@
   - AssignmentSection.tsx のペースト制御を課題設定に基づいて切り替え
 
 #### テスト（詳細: [test-plan.md](./test-plan.md)）
-- [ ] Phase 1: テスト基盤セットアップ（Vitest導入、モックファクトリ）
-- [ ] Phase 2: 純粋関数テスト（csv, notifications）
-- [ ] Phase 3: コアロジックテスト（bedrock, ai-grading）
-- [ ] Phase 4: 重要Server Actionsテスト（提出、採点、ユーザー、カリキュラム）
+- [x] Phase 1: テスト基盤セットアップ（Vitest導入、モックファクトリ）
+- [x] Phase 2: 純粋関数テスト（csv, notifications）
+- [x] Phase 3: コアロジックテスト（bedrock, ai-grading）
+- [ ] Phase 4: 重要Server Actionsテスト（提出、採点、ユーザー、カリキュラム）← 進行中
 - [ ] Phase 5: 残りServer Actionsテスト（コメント、通知、チェックリスト等）
 - [ ] Phase 6: 認証テスト
 - [ ] 手動テスト（全画面・主要フローの仕様適合確認）
