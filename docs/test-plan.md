@@ -8,7 +8,7 @@
 
 ## 進捗
 
-**全体進捗: 95 / 211 テストケース（45%）**
+**全体進捗: 119 / 211 テストケース（56%）**
 
 | # | テストファイル | ケース数 | 状態 |
 |---|--------------|---------|------|
@@ -19,7 +19,7 @@
 | 4 | `src/lib/__tests__/ai-grading.test.ts` | 17 | [x] 完了（17 passed）|
 | 5 | `src/app/curricula/__tests__/actions.test.ts` | 21 | [x] 完了（21 passed）|
 | 6 | `src/app/admin/submissions/__tests__/actions.test.ts` | 25 | [x] 完了（25 passed）|
-| 7 | `src/app/admin/users/__tests__/actions.test.ts` | 28 | [ ] 未着手 |
+| 7 | `src/app/admin/users/__tests__/actions.test.ts` | 24 | [x] 完了（24 passed）|
 | 8 | `src/app/admin/curricula/__tests__/actions.test.ts` | 30 | [ ] 未着手 |
 | 9 | `src/app/admin/curriculum-plans/__tests__/actions.test.ts` | 22 | [ ] 未着手 |
 | 10 | `src/app/submissions/__tests__/actions.test.ts` | 17 | [ ] 未着手 |
