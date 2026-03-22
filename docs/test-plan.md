@@ -8,7 +8,7 @@
 
 ## 進捗
 
-**全体進捗: 119 / 211 テストケース（56%）**
+**全体進捗: 149 / 211 テストケース（71%）**
 
 | # | テストファイル | ケース数 | 状態 |
 |---|--------------|---------|------|
@@ -20,7 +20,7 @@
 | 5 | `src/app/curricula/__tests__/actions.test.ts` | 21 | [x] 完了（21 passed）|
 | 6 | `src/app/admin/submissions/__tests__/actions.test.ts` | 25 | [x] 完了（25 passed）|
 | 7 | `src/app/admin/users/__tests__/actions.test.ts` | 24 | [x] 完了（24 passed）|
-| 8 | `src/app/admin/curricula/__tests__/actions.test.ts` | 30 | [ ] 未着手 |
+| 8 | `src/app/admin/curricula/__tests__/actions.test.ts` | 30 | [x] 完了（30 passed）|
 | 9 | `src/app/admin/curriculum-plans/__tests__/actions.test.ts` | 22 | [ ] 未着手 |
 | 10 | `src/app/submissions/__tests__/actions.test.ts` | 17 | [ ] 未着手 |
 | 11 | `src/app/notifications/__tests__/actions.test.ts` | 8 | [ ] 未着手 |
