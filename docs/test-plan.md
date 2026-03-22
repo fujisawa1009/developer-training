@@ -26,7 +26,7 @@
 | 11 | `src/app/notifications/__tests__/actions.test.ts` | 8 | [x] 完了（8 passed）|
 | 12 | `src/app/checklists/[periodId]/__tests__/actions.test.ts` | 14 | [x] 完了（14 passed）|
 | 13 | `src/app/admin/evaluation-periods/__tests__/actions.test.ts` | 7 | [x] 完了（7 passed）|
-| 14 | `src/app/admin/checklists/__tests__/actions.test.ts` | 9 | [ ] 未着手 |
+| 14 | `src/app/admin/checklists/__tests__/actions.test.ts` | 9 | [x] 完了（9 passed）|
 | 15 | `src/auth/__tests__/index.test.ts` | 4 | [ ] 未着手 |
 
 ---
