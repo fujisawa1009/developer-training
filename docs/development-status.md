@@ -63,12 +63,12 @@
 ### 2-2. テスト・品質保証
 
 #### バグ修正・改善（積み上げリスト）
-- [ ] 通知: ベルアイコンクリックで画面エラーが発生 → 要調査
+- [x] 通知: ベルアイコンクリックで画面エラーが発生 → NotificationItem Client Component に抽出して修正
 - [ ] seed: demoデータで同じカリキュラムプランが2つ紐づく → 要調査
 - [ ] AI採点: 無関係な回答に高スコアがつく問題（→ Step 2 模範解答導入で対応）
 - [ ] AI採点: プロンプト調整（採点基準の明確化、不適切回答の検出強化）
 - [ ] 講師画面: AI再採点ボタン押下後の結果反映確認
-- [ ] `Event handlers cannot be passed to Client Component props` エラーの修正（ログに出力あり）
+- [x] `Event handlers cannot be passed to Client Component props` エラーの修正 → 通知バグと同一原因、修正済み
 - [ ] 課題提出: ペースト可否を課題ごとに設定可能にする（GitHubリンク貼付が必要な課題があるため）
   - Assignmentモデルに `allowPaste` フラグ追加
   - 管理画面の課題編集UIに設定項目追加
