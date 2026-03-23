@@ -8,20 +8,24 @@
 
 ## 進捗
 
-**全体進捗: 27 / 45 テストケース（60%）**
+**全体進捗: 40 / 46 テストケース（87%）**
 
 | # | テストファイル | ケース数 | 状態 |
 |---|--------------|---------|------|
 | 0 | テスト基盤セットアップ | - | [x] 完了 |
 | 1 | `e2e/auth.spec.ts` | 5 | [x] 完了（5 passed） |
 | 2 | `e2e/dashboard.spec.ts` | 4 | [x] 完了（4 passed） |
-| 3 | `e2e/notifications.spec.ts` | 5 | [x] 完了（5 passed） |
-| 4 | `e2e/curricula.spec.ts` | 7 | [x] 完了（7 passed） |
+| 3 | `e2e/notifications.spec.ts` | 5 | [~] 一部失敗（2 passed / 3 hydration errors） |
+| 4 | `e2e/curricula.spec.ts` | 7 | [~] 一部失敗（5 passed / 2 hydration errors） |
 | 5 | `e2e/submissions.spec.ts` | 6 | [x] 完了（6 passed） |
-| 6 | `e2e/admin-users.spec.ts` | 5 | [ ] 未着手 |
-| 7 | `e2e/admin-curricula.spec.ts` | 5 | [ ] 未着手 |
-| 8 | `e2e/admin-grading.spec.ts` | 4 | [ ] 未着手 |
-| 9 | `e2e/admin-evaluation.spec.ts` | 4 | [ ] 未着手 |
+| 6 | `e2e/admin-users.spec.ts` | 5 | [x] 完了（5 passed） |
+| 7 | `e2e/admin-curricula.spec.ts` | 5 | [x] 完了（5 passed） |
+| 8 | `e2e/admin-grading.spec.ts` | 4 | [x] 完了（4 passed） |
+| 9 | `e2e/admin-evaluation.spec.ts` | 4 | [~] 一部失敗（3 passed / 1 hydration error） |
+
+**注意事項:**
+- 6つのテストがハイドレーションエラーで失敗（日時フォーマットの不一致）
+- データベースリセット後はシード実行が必須: `docker compose exec app npx prisma db seed`
 
 ---
 
@@ -250,12 +254,12 @@ docker compose exec app npx playwright test e2e/auth.spec.ts
 
 ## テストケース集計
 
-| Phase | ファイル数 | テストケース数 |
-|-------|----------|-------------|
-| Phase 1: 認証・基本画面 | 3 | 14 |
-| Phase 2: 受講者フロー | 2 | 13 |
-| Phase 3: 管理者フロー | 4 | 18 |
-| **合計** | **9** | **45** |
+| Phase | ファイル数 | テストケース数 | 状態 |
+|-------|----------|-------------|------|
+| Phase 1: 認証・基本画面 | 3 | 14 | 11 passed / 3 hydration errors |
+| Phase 2: 受講者フロー | 2 | 13 | 11 passed / 2 hydration errors |
+| Phase 3: 管理者フロー | 4 | 18 | 17 passed / 1 hydration error |
+| **合計** | **9** | **45** | **40 passed / 6 failed（87%）** |
 
 ---
 
