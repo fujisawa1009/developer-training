@@ -18,6 +18,7 @@ type DefaultValues = {
   videoUrl?: string | null;
   assignmentType?: AssignmentType | null;
   assignmentDescription?: string | null;
+  modelAnswer?: string | null;
 };
 
 type Props = {
@@ -171,7 +172,7 @@ export function LessonForm({ action, defaultValues, submitLabel = "レッスン�
               defaultValue={defaultValues?.assignmentType ?? "git"}
               className="w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors"
             >
-              {(["git", "sql", "program", "debug"] as AssignmentType[]).map((t) => (
+              {(["git", "sql", "program", "debug", "text"] as AssignmentType[]).map((t) => (
                 <option key={t} value={t}>
                   {ASSIGNMENT_TYPE_LABELS[t]}
                 </option>
@@ -198,6 +199,21 @@ export function LessonForm({ action, defaultValues, submitLabel = "レッスン�
                 {state.errors.assignmentDescription.join(", ")}
               </p>
             )}
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="modelAnswer">模範解答</Label>
+            <p className="text-xs text-muted-foreground">
+              AI採点の精度向上に使用されます。未入力でも採点は実行されます。
+            </p>
+            <textarea
+              id="modelAnswer"
+              name="modelAnswer"
+              rows={6}
+              defaultValue={defaultValues?.modelAnswer ?? ""}
+              placeholder="期待する回答例を記述..."
+              className="w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors resize-y"
+            />
           </div>
         </div>
       )}

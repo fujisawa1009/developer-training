@@ -305,6 +305,7 @@ model Assignment {
   title       String
   type        AssignmentType
   description String
+  modelAnswer String?        // 模範解答（AI採点プロンプトに注入）
   deadline    DateTime?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt

@@ -20,6 +20,11 @@ const SYSTEM_PROMPT_BASE = `あなたは新卒エンジニア研修の課題を�
 受講者の回答を評価し、以下のJSON形式で結果を返してください。
 JSON以外のテキストは一切出力しないでください。
 
+## 模範解答について
+模範解答が提供されている場合は、それを採点の基準として参照してください。
+ただし、表現の多様性は認め、意味・要件の充足を重視してください。
+模範解答と完全一致でなくても、内容が正確であれば合格と判定してください。
+
 出力フォーマット:
 {
   "recommendation": "pass" または "fail",
@@ -106,13 +111,17 @@ export async function executeAiGrading(
     const systemPrompt =
       SYSTEM_PROMPT_BASE + getTypeSpecificPrompt(submission.assignment.type);
 
+    const modelAnswerSection = submission.assignment.modelAnswer
+      ? `\n## 模範解答（参考）\n${submission.assignment.modelAnswer}\n`
+      : "";
+
     const userMessage = `## 課題情報
 課題名: ${submission.assignment.title}
 課題タイプ: ${submission.assignment.type}
 
 ## 課題の説明・要件
 ${submission.assignment.description}
-
+${modelAnswerSection}
 ## 受講者の回答
 ${submission.textAnswer}`;
 

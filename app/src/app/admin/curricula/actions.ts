@@ -116,8 +116,21 @@ const lessonSchema = z.object({
   body: z.string().optional(),
   videoUrl: z.string().optional(),
   assignmentDescription: z.string().optional(),
-  assignmentType: z.enum(["git", "sql", "program", "debug"]).optional(),
+  assignmentType: z.enum(["git", "sql", "program", "debug", "text"]).optional(),
+  modelAnswer: z.string().optional(),
 });
+
+async function saveModelAnswerToQdrant(
+  assignmentId: string,
+  tenantId: string,
+  modelAnswer: string
+): Promise<void> {
+  const { getEmbedding } = await import("@/lib/bedrock");
+  const { ensureCollection, saveModelAnswer } = await import("@/lib/qdrant");
+  await ensureCollection();
+  const vector = await getEmbedding(modelAnswer);
+  await saveModelAnswer(assignmentId, tenantId, modelAnswer, vector);
+}
 
 export async function createLesson(
   curriculumId: string,
@@ -135,13 +148,14 @@ export async function createLesson(
     videoUrl: formData.get("videoUrl") || undefined,
     assignmentDescription: formData.get("assignmentDescription") || undefined,
     assignmentType: formData.get("assignmentType") || undefined,
+    modelAnswer: formData.get("modelAnswer") || undefined,
   });
 
   if (!parsed.success) {
     return { errors: parsed.error.flatten().fieldErrors as Record<string, string[]> };
   }
 
-  const { type, title, slug, order, body, videoUrl, assignmentDescription, assignmentType } =
+  const { type, title, slug, order, body, videoUrl, assignmentDescription, assignmentType, modelAnswer } =
     parsed.data;
 
   // カリキュラムがテナントに属しているか確認
@@ -165,8 +179,14 @@ export async function createLesson(
         title,
         type: assignmentType,
         description: assignmentDescription,
+        modelAnswer: modelAnswer ?? null,
       },
     });
+
+    if (modelAnswer) {
+      saveModelAnswerToQdrant(assignment.id, session.user.tenantId, modelAnswer)
+        .catch((e) => console.error("[Qdrant] 模範解答の保存に失敗:", e));
+    }
     await prisma.lesson.create({
       data: { curriculumId, slug, title, type: "assignment", order, assignmentId: assignment.id },
     });
@@ -204,13 +224,14 @@ export async function updateLesson(
     videoUrl: formData.get("videoUrl") || undefined,
     assignmentDescription: formData.get("assignmentDescription") || undefined,
     assignmentType: formData.get("assignmentType") || undefined,
+    modelAnswer: formData.get("modelAnswer") || undefined,
   });
 
   if (!parsed.success) {
     return { errors: parsed.error.flatten().fieldErrors as Record<string, string[]> };
   }
 
-  const { type, title, slug, order, body, videoUrl, assignmentDescription, assignmentType } =
+  const { type, title, slug, order, body, videoUrl, assignmentDescription, assignmentType, modelAnswer } =
     parsed.data;
 
   const lesson = await prisma.lesson.findFirst({
@@ -231,8 +252,13 @@ export async function updateLesson(
     if (lesson.assignmentId) {
       await prisma.assignment.update({
         where: { id: lesson.assignmentId },
-        data: { title, type: assignmentType, description: assignmentDescription },
+        data: { title, type: assignmentType, description: assignmentDescription, modelAnswer: modelAnswer ?? null },
       });
+
+      if (modelAnswer) {
+        saveModelAnswerToQdrant(lesson.assignmentId, session.user.tenantId, modelAnswer)
+          .catch((e) => console.error("[Qdrant] 模範解答の保存に失敗:", e));
+      }
     } else {
       const assignment = await prisma.assignment.create({
         data: {
@@ -240,8 +266,15 @@ export async function updateLesson(
           title,
           type: assignmentType,
           description: assignmentDescription,
+          modelAnswer: modelAnswer ?? null,
         },
       });
+
+      if (modelAnswer) {
+        saveModelAnswerToQdrant(assignment.id, session.user.tenantId, modelAnswer)
+          .catch((e) => console.error("[Qdrant] 模範解答の保存に失敗:", e));
+      }
+
       await prisma.lesson.update({
         where: { id: lessonId },
         data: { title, slug, order, type: "assignment", assignmentId: assignment.id },

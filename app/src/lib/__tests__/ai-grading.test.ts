@@ -33,6 +33,7 @@ function createSubmission(overrides: Record<string, unknown> = {}) {
       title: "SQL基礎",
       type: "sql",
       description: "SELECT文を書いてください",
+      modelAnswer: null,
     },
     ...overrides,
   };
@@ -134,6 +135,7 @@ describe("executeAiGrading", () => {
           title: "SQL基礎演習",
           type: "sql",
           description: "全ユーザーを取得するSQLを書いてください",
+          modelAnswer: null,
         },
       })
     );
@@ -147,6 +149,49 @@ describe("executeAiGrading", () => {
     expect(userMessage).toContain("SQL基礎演習");
     expect(userMessage).toContain("全ユーザーを取得するSQLを書いてください");
     expect(userMessage).toContain("SELECT * FROM users;");
+  });
+
+  it("模範解答がある場合、ユーザーメッセージに模範解答セクションが含まれる", async () => {
+    mockPrisma.submission.findUnique.mockResolvedValue(
+      createSubmission({
+        assignment: {
+          title: "SQL基礎",
+          type: "sql",
+          description: "SELECT文を書いてください",
+          modelAnswer: "SELECT * FROM users WHERE active = true;",
+        },
+      })
+    );
+    mockInvokeClaude.mockResolvedValue(createAiResponse());
+    mockPrisma.review.findUnique.mockResolvedValue(null);
+    mockPrisma.review.upsert.mockResolvedValue({});
+
+    await executeAiGrading("sub-1");
+
+    const userMessage = mockInvokeClaude.mock.calls[0][1];
+    expect(userMessage).toContain("## 模範解答（参考）");
+    expect(userMessage).toContain("SELECT * FROM users WHERE active = true;");
+  });
+
+  it("模範解答がない場合、ユーザーメッセージに模範解答セクションが含まれない", async () => {
+    mockPrisma.submission.findUnique.mockResolvedValue(
+      createSubmission({
+        assignment: {
+          title: "SQL基礎",
+          type: "sql",
+          description: "SELECT文を書いてください",
+          modelAnswer: null,
+        },
+      })
+    );
+    mockInvokeClaude.mockResolvedValue(createAiResponse());
+    mockPrisma.review.findUnique.mockResolvedValue(null);
+    mockPrisma.review.upsert.mockResolvedValue({});
+
+    await executeAiGrading("sub-1");
+
+    const userMessage = mockInvokeClaude.mock.calls[0][1];
+    expect(userMessage).not.toContain("## 模範解答（参考）");
   });
 
   // --- レスポンス解析 ---

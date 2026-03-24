@@ -58,9 +58,18 @@ export async function invokeClaude(
 }
 
 /**
- * テキストのベクトル埋め込みを取得する（Step 2 以降で使用）
+ * Amazon Titan Text Embeddings v2 でテキストをベクトル化する
+ * 1024次元のベクトルを返す
  */
-export async function getEmbedding(_text: string): Promise<number[]> {
-  // Step 1 では未使用。Step 2 で Titan Embeddings v2 を使って実装予定。
-  throw new Error("getEmbedding は Step 2 で実装予定です");
+export async function getEmbedding(text: string): Promise<number[]> {
+  const command = new InvokeModelCommand({
+    modelId: "amazon.titan-embed-text-v2:0",
+    body: JSON.stringify({ inputText: text }),
+    contentType: "application/json",
+    accept: "application/json",
+  });
+
+  const response = await bedrockClient.send(command);
+  const responseBody = JSON.parse(new TextDecoder().decode(response.body));
+  return responseBody.embedding as number[];
 }
