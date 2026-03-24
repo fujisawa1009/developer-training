@@ -27,7 +27,7 @@ interface TextLessonFrontmatter {
   title: string;
   type: "text";
   order: number;
-  assignment_type?: "git" | "sql" | "program" | "debug";
+  assignment_type?: "git" | "sql" | "program" | "debug" | "text";
 }
 
 interface VideoLesson {
@@ -119,6 +119,10 @@ async function importCurricula(tenantId: string) {
 
     console.log(`📚 カリキュラム: ${curriculum.name} (${slug})`);
 
+    // 模範解答・課題説明ディレクトリ（任意）
+    const modelAnswersDir = path.join(curriculumDir, "model-answers");
+    const assignmentsDir = path.join(curriculumDir, "assignments");
+
     // レッスンファイルを読み込み
     const lessonsDir = path.join(curriculumDir, "lessons");
     if (!fs.existsSync(lessonsDir)) {
@@ -150,21 +154,41 @@ async function importCurricula(tenantId: string) {
         // assignment_type が指定されている場合はAssignmentを作成
         let assignmentId: string | undefined;
         if (frontmatter.assignment_type) {
+          // assignments/{lessonSlug}.md があれば課題説明として使用（なければ汎用文）
+          const assignmentDescPath = path.join(assignmentsDir, `${lessonSlug}.md`);
+          const description = fs.existsSync(assignmentDescPath)
+            ? fs.readFileSync(assignmentDescPath, "utf-8").trim()
+            : "このレッスンの末尾にある練習問題に取り組み、解答を提出してください。";
+
+          // model-answers/{lessonSlug}.md があれば読み込む
+          const modelAnswerPath = path.join(modelAnswersDir, `${lessonSlug}.md`);
+          const modelAnswer = fs.existsSync(modelAnswerPath)
+            ? fs.readFileSync(modelAnswerPath, "utf-8").trim()
+            : null;
+
           const assignment = await prisma.assignment.upsert({
             where: { id: `assignment-${tenantId}-${lessonSlug}` },
             update: {
               title: `${frontmatter.title} - 練習問題`,
-              description: "このレッスンの末尾にある練習問題に取り組み、解答を提出してください。",
+              description,
+              modelAnswer,
             },
             create: {
               id: `assignment-${tenantId}-${lessonSlug}`,
               tenantId,
               title: `${frontmatter.title} - 練習問題`,
               type: frontmatter.assignment_type,
-              description: "このレッスンの末尾にある練習問題に取り組み、解答を提出してください。",
+              description,
+              modelAnswer,
             },
           });
           assignmentId = assignment.id;
+          if (fs.existsSync(assignmentDescPath)) {
+            console.log(`    📋 練習問題を登録: ${lessonSlug}`);
+          }
+          if (modelAnswer) {
+            console.log(`    ✍️  模範解答を登録: ${lessonSlug}`);
+          }
         }
 
         lessonData = {
@@ -193,12 +217,18 @@ async function importCurricula(tenantId: string) {
             ? new Date(Date.now() + data.deadline_days * 24 * 60 * 60 * 1000)
             : undefined;
 
+          // model-answers/{lessonSlug}.md があれば読み込む
+          const modelAnswerPath = path.join(modelAnswersDir, `${lessonSlug}.md`);
+          const modelAnswer = fs.existsSync(modelAnswerPath)
+            ? fs.readFileSync(modelAnswerPath, "utf-8").trim()
+            : null;
+
           const assignment = await prisma.assignment.upsert({
             where: {
               // slug がないので title + tenantId で代用（本来はslugを持たせるとよい）
               id: `assignment-${tenantId}-${lessonSlug}`,
             },
-            update: { title: data.title, description: data.description },
+            update: { title: data.title, description: data.description, modelAnswer },
             create: {
               id: `assignment-${tenantId}-${lessonSlug}`,
               tenantId,
@@ -206,8 +236,12 @@ async function importCurricula(tenantId: string) {
               type: data.assignmentType,
               description: data.description,
               deadline,
+              modelAnswer,
             },
           });
+          if (modelAnswer) {
+            console.log(`    ✍️  模範解答を登録: ${lessonSlug}`);
+          }
 
           lessonData = {
             slug: lessonSlug,

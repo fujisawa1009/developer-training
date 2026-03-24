@@ -128,6 +128,20 @@ export default async function SubmissionDetailPage({ params }: Props) {
             {submission.assignment.description}
           </p>
         </div>
+
+        {submission.assignment.modelAnswer && (
+          <>
+            <Separator />
+            <details>
+              <summary className="text-sm font-medium cursor-pointer select-none text-green-700 hover:text-green-900">
+                模範解答を表示
+              </summary>
+              <div className="mt-2 rounded-md bg-green-50 border border-green-200 p-3 text-sm whitespace-pre-wrap text-green-900">
+                {submission.assignment.modelAnswer}
+              </div>
+            </details>
+          </>
+        )}
       </div>
 
       {/* 提出内容 */}

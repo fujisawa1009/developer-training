@@ -14,7 +14,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Film, ClipboardList, SquarePen, Trash2 } from "lucide-react";
+import { FileText, Film, ClipboardList, SquarePen, Trash2, Eye } from "lucide-react";
 import { SortableRow } from "@/components/sortable-row";
 import { useSortableList } from "@/lib/hooks/use-sortable-list";
 import { reorderLessons, deleteLesson } from "../../actions";
@@ -102,6 +102,13 @@ export function SortableLessonTable({ curriculumId, initialLessons }: Props) {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <Link
+                          href={`/admin/curricula/${curriculumId}/lessons/${lesson.id}`}
+                          className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
+                          title="表示"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Link>
                         <Link
                           href={`/admin/curricula/${curriculumId}/lessons/${lesson.id}/edit`}
                           className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }))}
