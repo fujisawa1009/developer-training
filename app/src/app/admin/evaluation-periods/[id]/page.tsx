@@ -43,10 +43,6 @@ export default async function EvaluationPeriodDetailPage({ params }: Props) {
   });
 
   // チェックリスト総項目数
-  const template = await prisma.checklistTemplate.findFirst({
-    where: { tenantId: session.user.tenantId },
-    include: { _count: { select: { categories: false } } },
-  });
   const totalItems = await prisma.checklistItem.count({
     where: {
       category: {

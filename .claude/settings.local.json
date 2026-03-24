@@ -23,7 +23,8 @@
       "Bash(docker compose exec -T app npx prisma migrate reset --force)",
       "Bash(docker compose logs app --tail=100)",
       "Bash(npx tsx --env-file=.env prisma/seed.ts)",
-      "Bash(npx playwright test --reporter=list)"
+      "Bash(npx playwright test --reporter=list)",
+      "Bash(docker compose exec:*)"
     ],
     "deny": [],
     "ask": []
