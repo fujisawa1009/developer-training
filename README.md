@@ -130,6 +130,24 @@ docker run --name postgres-demo \
   -d postgres:18
 ```
 
+### DB動作の流れ（初回起動時）
+  ---
+
+  docker compose up -d
+    │
+    ├─ ./data/postgres が存在しない
+    │      ↓
+    │   Docker が自動作成（空ディレクトリ）
+    │      ↓
+    │   PostgreSQL が空ディレクトリを検知 → initdb 実行
+    │      ↓
+    │   DBを初期化・データ書き込み開始 ✅
+    │
+    └─ ./data/postgres が既に存在する（2回目以降）
+           ↓
+        既存データをそのまま使って起動 ✅
+
+  ---
 
 ### 5. 動作確認
 

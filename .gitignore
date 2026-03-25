@@ -3,5 +3,5 @@
 .env.*
 !.env.example
 
-# Docker volumes (if mounted locally)
-postgres_data/
+# Docker volumes (bind mount data)
+data/
