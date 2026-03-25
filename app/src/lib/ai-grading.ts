@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { invokeClaude } from "@/lib/bedrock";
+import { invokeClaude, getEmbedding } from "@/lib/bedrock";
+import { getSimilarGradingExamples } from "@/lib/qdrant";
 
 type AiGradingResult = {
   recommendation: "pass" | "fail";
@@ -108,6 +109,31 @@ export async function executeAiGrading(
       return;
     }
 
+    // 過去の講師採点事例を Qdrant から検索（RAG）
+    let pastExamplesSection = "";
+    try {
+      const answerVector = await getEmbedding(
+        `${submission.assignment.title} ${submission.assignment.type} ${submission.textAnswer}`
+      );
+      const examples = await getSimilarGradingExamples(
+        submission.assignmentId,
+        submission.assignment.tenantId,
+        answerVector
+      );
+      if (examples.length > 0) {
+        const exampleTexts = examples.map((ex, i) => {
+          const verdict = ex.passed ? "合格" : "不合格";
+          return `### 過去事例 ${i + 1}（${verdict}・スコア: ${ex.score ?? "N/A"}）
+回答: ${ex.textAnswer}
+講師コメント: ${ex.instructorComment}`;
+        });
+        pastExamplesSection = `\n## 過去の講師採点事例（参考）\n以下は同一課題に対して講師が採点した過去の事例です。採点の一貫性を保つ参考として活用してください。\n${exampleTexts.join("\n\n")}\n`;
+      }
+    } catch (error) {
+      // RAG 取得失敗は無視（フォールバック: 事例なしで採点継続）
+      console.warn("[AI採点] 過去事例の取得に失敗しました:", error);
+    }
+
     const systemPrompt =
       SYSTEM_PROMPT_BASE + getTypeSpecificPrompt(submission.assignment.type);
 
@@ -121,7 +147,7 @@ export async function executeAiGrading(
 
 ## 課題の説明・要件
 ${submission.assignment.description}
-${modelAnswerSection}
+${modelAnswerSection}${pastExamplesSection}
 ## 受講者の回答
 ${submission.textAnswer}`;
 

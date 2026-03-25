@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createNotification } from "@/lib/notifications";
 import { executeAiGrading } from "@/lib/ai-grading";
+import { getEmbedding } from "@/lib/bedrock";
+import { saveGradingExample } from "@/lib/qdrant";
 
 export type GradeFormState = {
   errors?: Record<string, string[]>;
@@ -122,6 +124,29 @@ export async function gradeSubmission(
   // 受講者のレッスンページも再検証
   if (learnerLink) {
     revalidatePath(learnerLink);
+  }
+
+  // 過去採点事例を Qdrant に蓄積（fire-and-forget、textAnswer がある課題のみ）
+  if (submission.textAnswer) {
+    const embeddingText = `${submission.assignment.title} ${submission.assignment.type} ${submission.textAnswer}`;
+    getEmbedding(embeddingText)
+      .then((vector) =>
+        saveGradingExample(
+          {
+            assignmentId: submission.assignmentId,
+            tenantId: session.user.tenantId,
+            textAnswer: submission.textAnswer!,
+            passed,
+            instructorComment,
+            score: null,
+            assignmentType: submission.assignment.type,
+          },
+          vector
+        )
+      )
+      .catch((error) => {
+        console.error("[採点保存] Qdrant への保存に失敗しました:", error);
+      });
   }
 
   revalidatePath("/admin/submissions");

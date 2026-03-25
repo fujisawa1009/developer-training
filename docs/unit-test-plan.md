@@ -8,7 +8,7 @@
 
 ## 進捗
 
-**全体進捗: 228 テストケース完了（全15ファイル 100%）**
+**全体進捗: 236 テストケース完了（全15ファイル 100%）**
 
 | # | テストファイル | ケース数 | 状態 |
 |---|--------------|---------|------|
@@ -16,7 +16,7 @@
 | 1 | `src/lib/__tests__/csv.test.ts` | 14 | [x] 完了（14 passed）|
 | 2 | `src/lib/__tests__/notifications.test.ts` | 9 | [x] 完了（9 passed）|
 | 3 | `src/lib/__tests__/bedrock.test.ts` | 9 | [x] 完了（9 passed）|
-| 4 | `src/lib/__tests__/ai-grading.test.ts` | 17 | [x] 完了（17 passed）|
+| 4 | `src/lib/__tests__/ai-grading.test.ts` | 25 | [x] 完了（25 passed）|
 | 5 | `src/app/curricula/__tests__/actions.test.ts` | 21 | [x] 完了（21 passed）|
 | 6 | `src/app/admin/submissions/__tests__/actions.test.ts` | 25 | [x] 完了（25 passed）|
 | 7 | `src/app/admin/users/__tests__/actions.test.ts` | 24 | [x] 完了（24 passed）|

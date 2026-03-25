@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { mockPrisma } from "@/test/mocks/prisma";
-import { mockInvokeClaude } from "@/test/mocks/bedrock";
+import { mockInvokeClaude, mockGetEmbedding } from "@/test/mocks/bedrock";
+import { mockGetSimilarGradingExamples } from "@/test/mocks/qdrant";
 import { executeAiGrading } from "@/lib/ai-grading";
 
 // AI採点結果の正常レスポンス
@@ -28,12 +29,14 @@ function createAiResponse(overrides: Record<string, unknown> = {}) {
 function createSubmission(overrides: Record<string, unknown> = {}) {
   return {
     id: "sub-1",
+    assignmentId: "assignment-1",
     textAnswer: "受講者の回答テキスト",
     assignment: {
       title: "SQL基礎",
       type: "sql",
       description: "SELECT文を書いてください",
       modelAnswer: null,
+      tenantId: "tenant-1",
     },
     ...overrides,
   };
@@ -43,6 +46,10 @@ describe("executeAiGrading", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    // RAG 関連のデフォルトモック（事例なし）
+    mockGetEmbedding.mockResolvedValue(new Array(1024).fill(0.1));
+    mockGetSimilarGradingExamples.mockResolvedValue([]);
   });
 
   // --- 提出物の検索 ---
@@ -310,6 +317,102 @@ describe("executeAiGrading", () => {
     expect(aiComment.aiGeneratedSuspicion.level).toBe("high");
     expect(aiComment.details).toHaveLength(1);
     expect(aiComment.details[0].criteria).toBe("品質");
+  });
+
+  // --- RAG: 過去事例の注入 ---
+
+  it("過去事例がある場合、userMessage に「過去の講師採点事例」セクションが含まれる", async () => {
+    mockPrisma.submission.findUnique.mockResolvedValue(createSubmission());
+    mockGetSimilarGradingExamples.mockResolvedValue([
+      { textAnswer: "過去の回答テキスト", passed: true, instructorComment: "良い回答です", score: 80 },
+    ]);
+    mockInvokeClaude.mockResolvedValue(createAiResponse());
+    mockPrisma.review.findUnique.mockResolvedValue(null);
+    mockPrisma.review.upsert.mockResolvedValue({});
+
+    await executeAiGrading("sub-1");
+
+    const userMessage = mockInvokeClaude.mock.calls[0][1];
+    expect(userMessage).toContain("## 過去の講師採点事例（参考）");
+    expect(userMessage).toContain("過去の回答テキスト");
+    expect(userMessage).toContain("良い回答です");
+  });
+
+  it("過去事例がゼロの場合、userMessage に「過去の講師採点事例」セクションが含まれない", async () => {
+    mockPrisma.submission.findUnique.mockResolvedValue(createSubmission());
+    mockGetSimilarGradingExamples.mockResolvedValue([]);
+    mockInvokeClaude.mockResolvedValue(createAiResponse());
+    mockPrisma.review.findUnique.mockResolvedValue(null);
+    mockPrisma.review.upsert.mockResolvedValue({});
+
+    await executeAiGrading("sub-1");
+
+    const userMessage = mockInvokeClaude.mock.calls[0][1];
+    expect(userMessage).not.toContain("## 過去の講師採点事例（参考）");
+  });
+
+  it("getEmbedding に「課題タイトル + タイプ + 回答」の連結テキストが渡される", async () => {
+    mockPrisma.submission.findUnique.mockResolvedValue(
+      createSubmission({
+        textAnswer: "MY_ANSWER",
+        assignment: {
+          title: "MY_TITLE",
+          type: "sql",
+          description: "課題説明",
+          modelAnswer: null,
+          tenantId: "tenant-1",
+        },
+      })
+    );
+    mockInvokeClaude.mockResolvedValue(createAiResponse());
+    mockPrisma.review.findUnique.mockResolvedValue(null);
+    mockPrisma.review.upsert.mockResolvedValue({});
+
+    await executeAiGrading("sub-1");
+
+    expect(mockGetEmbedding).toHaveBeenCalledWith("MY_TITLE sql MY_ANSWER");
+  });
+
+  it("RAG 取得失敗時も採点処理は継続し、console.warn が出力される", async () => {
+    mockPrisma.submission.findUnique.mockResolvedValue(createSubmission());
+    mockGetEmbedding.mockRejectedValue(new Error("Qdrant error"));
+    mockInvokeClaude.mockResolvedValue(createAiResponse());
+    mockPrisma.review.findUnique.mockResolvedValue(null);
+    mockPrisma.review.upsert.mockResolvedValue({});
+
+    await expect(executeAiGrading("sub-1")).resolves.toBeUndefined();
+
+    expect(console.warn).toHaveBeenCalledWith(
+      expect.stringContaining("過去事例の取得に失敗しました"),
+      expect.any(Error)
+    );
+    expect(mockInvokeClaude).toHaveBeenCalled();
+  });
+
+  it("textAnswer が null の場合、getEmbedding は呼ばれない", async () => {
+    mockPrisma.submission.findUnique.mockResolvedValue(
+      createSubmission({ textAnswer: null })
+    );
+
+    await executeAiGrading("sub-1");
+
+    expect(mockGetEmbedding).not.toHaveBeenCalled();
+  });
+
+  it("passed: false の過去事例が「不合格」として userMessage に含まれる", async () => {
+    mockPrisma.submission.findUnique.mockResolvedValue(createSubmission());
+    mockGetSimilarGradingExamples.mockResolvedValue([
+      { textAnswer: "不十分な回答", passed: false, instructorComment: "要改善", score: 30 },
+    ]);
+    mockInvokeClaude.mockResolvedValue(createAiResponse());
+    mockPrisma.review.findUnique.mockResolvedValue(null);
+    mockPrisma.review.upsert.mockResolvedValue({});
+
+    await executeAiGrading("sub-1");
+
+    const userMessage = mockInvokeClaude.mock.calls[0][1];
+    expect(userMessage).toContain("不合格");
+    expect(userMessage).toContain("不十分な回答");
   });
 
   // --- エラーハンドリング ---

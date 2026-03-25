@@ -61,9 +61,9 @@
 - [x] import.ts を拡張し assignments / model-answers ディレクトリに対応
 - [x] 管理者向けレッスン詳細ページ新規作成（`admin/curricula/[id]/lessons/[lessonId]/page.tsx`）
 
-#### Step 3: 過去採点データの蓄積・活用（見積: 2日）
-- [ ] 採点完了時のベクトル化・Qdrant保存
-- [ ] AI採点時の過去事例検索→プロンプト注入
+#### Step 3: 過去採点データの蓄積・活用（見積: 2日） ✅ 完了
+- [x] 採点完了時のベクトル化・Qdrant保存（`gradeSubmission` fire-and-forget、`grading_examples` コレクション）
+- [x] AI採点時の過去事例検索→プロンプト注入（`executeAiGrading` 内で類似事例 Top-3 を取得しプロンプトへ注入）
 
 ### 2-2. テスト・品質保証
 
@@ -79,7 +79,7 @@
   - 管理画面の課題編集UIに設定項目追加
   - AssignmentSection.tsx のペースト制御を課題設定に基づいて切り替え
 
-#### テスト — ✅ 全228ユニットテスト合格
+#### テスト — ✅ 全236ユニットテスト合格
 - 詳細: [unit-test-plan.md](./unit-test-plan.md)（ユニットテスト）/ [e2e-test-plan.md](./e2e-test-plan.md)（E2Eテスト）
 - [x] Phase 1: テスト基盤セットアップ（Vitest導入、モックファクトリ）
 - [x] Phase 2: 純粋関数テスト（csv, notifications）
@@ -248,7 +248,7 @@
 | Markdown | react-markdown + remark-gfm |
 | シンタックスハイライト | react-syntax-highlighter |
 | AI採点 | AWS Bedrock (Claude Haiku 4.5) + @aws-sdk/client-bedrock-runtime |
-| ベクトルDB | Qdrant（Step 2以降で使用予定） |
+| ベクトルDB | Qdrant（model_answers + grading_examples コレクション） |
 
 ---
 
@@ -265,6 +265,7 @@
 | 2026-03-24 | E2Eテスト進捗を反映（40/46、87%） |
 | 2026-03-24 | admin-evaluation 詳細ページの Prisma バグ修正（categories: false） |
 | 2026-03-24 | SQL基礎コンテンツ拡充（練習問題10件・模範解答18件追加）、採点画面に模範解答表示、管理者レッスン詳細ページ新規作成 |
+| 2026-03-25 | AI採点 Step 3 完了（過去採点事例の Qdrant 蓄積・RAG 注入、ユニットテスト 236件） |
 | 2026-03-25 | development-status.md を最新コミットに追従（練習問題・模範解答追加を反映） |
 | 2026-03-20 | 環境整備: COMPOSE_FILEによるローカル/本番切り替え、本番DB永続化（バインドマウント）、README整理 |
 | 2026-03-20 | 課題追加: 通知バグ、seedデータ重複、グループ管理改修、ロール管理、部署管理、CSV改善、スキーマ先行整備 |
