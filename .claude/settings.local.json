@@ -30,7 +30,13 @@
       "Bash(for f in /home/fujisawa/project/developer-training/app/content/curricula/sql-basics/lessons/*.md)",
       "Bash(do head -5 \"$f\")",
       "Bash(ls:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(git -C /home/fujisawa/project/developer-training log --oneline -15)",
+      "Bash(git -C /home/fujisawa/project/developer-training log --oneline --since=\"2026-03-24\")",
+      "Bash(git -C /home/fujisawa/project/developer-training show 75e28ba --stat)",
+      "Bash(git -C /home/fujisawa/project/developer-training show 75e28ba --name-only)",
+      "Bash(git -C /home/fujisawa/project/developer-training log --oneline 7f368f5..75e28ba --all)",
+      "Bash(git -C /home/fujisawa/project/developer-training show 75e28ba -- app/src/app/admin/submissions/[id]/page.tsx)"
     ],
     "deny": [],
     "ask": []

@@ -8,7 +8,7 @@
 
 ## 進捗
 
-**全体進捗: 40 / 46 テストケース（87%）**
+**全体進捗: 39 / 45 テストケース（87%）**
 
 | # | テストファイル | ケース数 | 状態 |
 |---|--------------|---------|------|
@@ -259,7 +259,7 @@ docker compose exec app npx playwright test e2e/auth.spec.ts
 | Phase 1: 認証・基本画面 | 3 | 14 | 11 passed / 3 hydration errors |
 | Phase 2: 受講者フロー | 2 | 13 | 11 passed / 2 hydration errors |
 | Phase 3: 管理者フロー | 4 | 18 | 17 passed / 1 hydration error |
-| **合計** | **9** | **45** | **40 passed / 6 failed（87%）** |
+| **合計** | **9** | **45** | **39 passed / 6 failed（87%）** |
 
 ---
 
