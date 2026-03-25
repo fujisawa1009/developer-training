@@ -90,6 +90,36 @@ docker compose exec app npm run seed:demo
 
 カリキュラムコンテンツ変更時は `npm run import-content` のみ再実行してください。
 
+
+### AWS設定
+```
+  mkdir -p ~/.aws
+  cat > ~/.aws/credentials << 'EOF'
+  [default]
+  aws_access_key_id = YOUR_ACCESS_KEY_ID
+  aws_secret_access_key = YOUR_SECRET_ACCESS_KEY
+***REMOVED***
+```
+
+## フォルダ確認
+
+```
+  1. 空ディレクトリを削除してファイルを配置                                                                  
+                                                                                                             
+  rmdir /home/fujisawa/snap/docker/3377/.aws/credentials                                                   
+  cp /root/.aws/credentials /home/fujisawa/snap/docker/3377/.aws/credentials                                 
+                                                                                                           
+  2. コンテナを再作成                                                                                      
+
+  cd ~/project/developer-training
+  docker compose down
+  docker compose up -d
+
+  3. 確認
+
+  docker compose exec app cat /root/.aws/credentials
+```
+
 ### 5. 動作確認
 
 ブラウザで `http://<サーバーのIP>:3001` にアクセスしてください。
