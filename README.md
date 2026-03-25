@@ -120,6 +120,17 @@ docker compose exec app npm run seed:demo
   docker compose exec app cat /root/.aws/credentials
 ```
 
+### ローカル環境にPostgreSQL環境を構築する
+```
+docker run --name postgres-demo \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_DB=app \
+  -p 5432:5432 \
+  -d postgres:18
+```
+
+
 ### 5. 動作確認
 
 ブラウザで `http://<サーバーのIP>:3001` にアクセスしてください。
