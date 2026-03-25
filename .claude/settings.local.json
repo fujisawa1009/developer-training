@@ -37,7 +37,11 @@
       "Bash(git -C /home/fujisawa/project/developer-training show 75e28ba --name-only)",
       "Bash(git -C /home/fujisawa/project/developer-training log --oneline 7f368f5..75e28ba --all)",
       "Bash(git -C /home/fujisawa/project/developer-training show 75e28ba -- app/src/app/admin/submissions/[id]/page.tsx)",
-      "Bash(npx vitest run:*)"
+      "Bash(npx vitest run:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker compose:*)",
+      "Bash(git -C /home/fujisawa/project/developer-training status --short)",
+      "Bash(git -C /home/fujisawa/project/developer-training diff app/package.json)"
     ],
     "deny": [],
     "ask": []
