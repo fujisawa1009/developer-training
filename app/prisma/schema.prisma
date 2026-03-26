@@ -306,6 +306,7 @@ model Assignment {
   type        AssignmentType
   description String
   modelAnswer String?        // 模範解答（AI採点プロンプトに注入）
+  allowPaste  Boolean        @default(false) // ペースト許可（git/program等URLを貼る必要がある課題用）
   deadline    DateTime?
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt

@@ -118,6 +118,7 @@ const lessonSchema = z.object({
   assignmentDescription: z.string().optional(),
   assignmentType: z.enum(["git", "sql", "program", "debug", "text"]).optional(),
   modelAnswer: z.string().optional(),
+  allowPaste: z.string().optional().transform(v => v === "on"),
 });
 
 async function saveModelAnswerToQdrant(
@@ -149,13 +150,14 @@ export async function createLesson(
     assignmentDescription: formData.get("assignmentDescription") || undefined,
     assignmentType: formData.get("assignmentType") || undefined,
     modelAnswer: formData.get("modelAnswer") || undefined,
+    allowPaste: formData.get("allowPaste") || undefined,
   });
 
   if (!parsed.success) {
     return { errors: parsed.error.flatten().fieldErrors as Record<string, string[]> };
   }
 
-  const { type, title, slug, order, body, videoUrl, assignmentDescription, assignmentType, modelAnswer } =
+  const { type, title, slug, order, body, videoUrl, assignmentDescription, assignmentType, modelAnswer, allowPaste } =
     parsed.data;
 
   // カリキュラムがテナントに属しているか確認
@@ -180,6 +182,7 @@ export async function createLesson(
         type: assignmentType,
         description: assignmentDescription,
         modelAnswer: modelAnswer ?? null,
+        allowPaste,
       },
     });
 
@@ -225,13 +228,14 @@ export async function updateLesson(
     assignmentDescription: formData.get("assignmentDescription") || undefined,
     assignmentType: formData.get("assignmentType") || undefined,
     modelAnswer: formData.get("modelAnswer") || undefined,
+    allowPaste: formData.get("allowPaste") || undefined,
   });
 
   if (!parsed.success) {
     return { errors: parsed.error.flatten().fieldErrors as Record<string, string[]> };
   }
 
-  const { type, title, slug, order, body, videoUrl, assignmentDescription, assignmentType, modelAnswer } =
+  const { type, title, slug, order, body, videoUrl, assignmentDescription, assignmentType, modelAnswer, allowPaste } =
     parsed.data;
 
   const lesson = await prisma.lesson.findFirst({
@@ -252,7 +256,7 @@ export async function updateLesson(
     if (lesson.assignmentId) {
       await prisma.assignment.update({
         where: { id: lesson.assignmentId },
-        data: { title, type: assignmentType, description: assignmentDescription, modelAnswer: modelAnswer ?? null },
+        data: { title, type: assignmentType, description: assignmentDescription, modelAnswer: modelAnswer ?? null, allowPaste },
       });
 
       if (modelAnswer) {
@@ -267,6 +271,7 @@ export async function updateLesson(
           type: assignmentType,
           description: assignmentDescription,
           modelAnswer: modelAnswer ?? null,
+          allowPaste,
         },
       });
 

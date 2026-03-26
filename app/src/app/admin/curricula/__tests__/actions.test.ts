@@ -208,6 +208,45 @@ describe("createLesson", () => {
     expect(lessonArg.data.assignmentId).toBe("assign-1");
   });
 
+  it("allowPaste=on のとき Assignment.allowPaste が true になる", async () => {
+    mockAuth.mockResolvedValue(defaultAdminSession);
+    mockPrisma.curriculum.findFirst.mockResolvedValue({ id: "cur-1" });
+    mockPrisma.assignment.create.mockResolvedValue({ id: "assign-1" });
+    mockPrisma.lesson.create.mockResolvedValue({});
+
+    const formData = lessonFormData({
+      type: "assignment",
+      assignmentDescription: "課題の説明",
+      assignmentType: "git",
+      allowPaste: "on",
+    });
+
+    try { await createLesson("cur-1", null, formData); }
+    catch (e) { if (!(e instanceof RedirectError)) throw e; }
+
+    const assignArg = mockPrisma.assignment.create.mock.calls[0][0];
+    expect(assignArg.data.allowPaste).toBe(true);
+  });
+
+  it("allowPaste 未指定のとき Assignment.allowPaste が false になる", async () => {
+    mockAuth.mockResolvedValue(defaultAdminSession);
+    mockPrisma.curriculum.findFirst.mockResolvedValue({ id: "cur-1" });
+    mockPrisma.assignment.create.mockResolvedValue({ id: "assign-1" });
+    mockPrisma.lesson.create.mockResolvedValue({});
+
+    const formData = lessonFormData({
+      type: "assignment",
+      assignmentDescription: "課題の説明",
+      assignmentType: "sql",
+    });
+
+    try { await createLesson("cur-1", null, formData); }
+    catch (e) { if (!(e instanceof RedirectError)) throw e; }
+
+    const assignArg = mockPrisma.assignment.create.mock.calls[0][0];
+    expect(assignArg.data.allowPaste).toBe(false);
+  });
+
   it("type=assignment で description/type 未指定の場合エラーを返す", async () => {
     mockAuth.mockResolvedValue(defaultAdminSession);
     mockPrisma.curriculum.findFirst.mockResolvedValue({ id: "cur-1" });

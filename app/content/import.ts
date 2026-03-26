@@ -28,6 +28,7 @@ interface TextLessonFrontmatter {
   type: "text";
   order: number;
   assignment_type?: "git" | "sql" | "program" | "debug" | "text";
+  allow_paste?: boolean;
 }
 
 interface VideoLesson {
@@ -45,6 +46,7 @@ interface AssignmentLesson {
   assignmentType: "git" | "sql" | "program" | "debug";
   description: string;
   deadline_days?: number;
+  allow_paste?: boolean;
 }
 
 type LessonFile = VideoLesson | AssignmentLesson;
@@ -172,6 +174,7 @@ async function importCurricula(tenantId: string) {
               title: `${frontmatter.title} - 練習問題`,
               description,
               modelAnswer,
+              allowPaste: frontmatter.allow_paste ?? false,
             },
             create: {
               id: `assignment-${tenantId}-${lessonSlug}`,
@@ -180,6 +183,7 @@ async function importCurricula(tenantId: string) {
               type: frontmatter.assignment_type,
               description,
               modelAnswer,
+              allowPaste: frontmatter.allow_paste ?? false,
             },
           });
           assignmentId = assignment.id;
@@ -228,7 +232,7 @@ async function importCurricula(tenantId: string) {
               // slug がないので title + tenantId で代用（本来はslugを持たせるとよい）
               id: `assignment-${tenantId}-${lessonSlug}`,
             },
-            update: { title: data.title, description: data.description, modelAnswer },
+            update: { title: data.title, description: data.description, modelAnswer, allowPaste: data.allow_paste ?? false },
             create: {
               id: `assignment-${tenantId}-${lessonSlug}`,
               tenantId,
@@ -237,6 +241,7 @@ async function importCurricula(tenantId: string) {
               description: data.description,
               deadline,
               modelAnswer,
+              allowPaste: data.allow_paste ?? false,
             },
           });
           if (modelAnswer) {

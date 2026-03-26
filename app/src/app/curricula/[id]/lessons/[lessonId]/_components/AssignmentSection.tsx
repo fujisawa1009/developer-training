@@ -27,6 +27,7 @@ type Assignment = {
   id: string;
   type: string;
   deadline: Date | null;
+  allowPaste: boolean;
 };
 
 type Props = {
@@ -61,9 +62,11 @@ function formatDuration(startedAt: Date, submittedAt: Date | null): string {
 // 課題提出フォーム
 function SubmitForm({
   assignmentType,
+  allowPaste,
   submitAction,
 }: {
   assignmentType: string;
+  allowPaste: boolean;
   submitAction: (prevState: SubmitFormState, formData: FormData) => Promise<SubmitFormState>;
 }) {
   const [state, dispatch, isPending] = useActionState(submitAction, null);
@@ -108,7 +111,7 @@ function SubmitForm({
                 ? "バグの原因と修正方法を記述..."
                 : "回答を入力してください..."
             }
-            onPaste={(e) => {
+            onPaste={allowPaste ? undefined : (e) => {
               e.preventDefault();
               alert("ペーストは禁止されています。自分の言葉で入力してください。");
             }}
@@ -133,7 +136,7 @@ function SubmitForm({
                 id="textAnswer"
                 name="textAnswer"
                 rows={6}
-                onPaste={(e) => {
+                onPaste={allowPaste ? undefined : (e) => {
                   e.preventDefault();
                   alert("ペーストは禁止されています。自分の言葉で入力してください。");
                 }}
@@ -282,6 +285,7 @@ export function AssignmentSection({
         </div>
         <SubmitForm
           assignmentType={assignment.type}
+          allowPaste={assignment.allowPaste}
           submitAction={submitAction!}
         />
       </div>

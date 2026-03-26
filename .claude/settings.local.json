@@ -46,7 +46,8 @@
       "WebFetch(domain:aws.amazon.com)",
       "WebFetch(domain:cloudburn.io)",
       "WebFetch(domain:go-cloud.io)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npx prisma migrate dev:*)"
     ],
     "deny": [],
     "ask": []

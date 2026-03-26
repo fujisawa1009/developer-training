@@ -19,6 +19,7 @@ type DefaultValues = {
   assignmentType?: AssignmentType | null;
   assignmentDescription?: string | null;
   modelAnswer?: string | null;
+  allowPaste?: boolean | null;
 };
 
 type Props = {
@@ -215,6 +216,17 @@ export function LessonForm({ action, defaultValues, submitLabel = "レッスン�
               className="w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors resize-y"
             />
           </div>
+
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              name="allowPaste"
+              value="on"
+              defaultChecked={defaultValues?.allowPaste ?? false}
+              className="w-4 h-4 rounded border-input"
+            />
+            <span className="text-sm">ペースト許可（GitHub URLなどの貼り付けが必要な課題）</span>
+          </label>
         </div>
       )}
 
