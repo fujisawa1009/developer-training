@@ -40,9 +40,9 @@ export async function seedTenantAndUsers() {
   const adminHash = await bcrypt.hash("password123", 10);
   const instructorHash = await bcrypt.hash("password123", 10);
   const learnerHash = await bcrypt.hash("password123", 10);
-  const kinoshitaHash = await bcrypt.hash("password123", 10);
-  const okadaHash = await bcrypt.hash("password123", 10);
-  const maitaHash = await bcrypt.hash("password123", 10);
+  const learner2Hash = await bcrypt.hash("password123", 10);
+  const learner3Hash = await bcrypt.hash("password123", 10);
+  const learner4Hash = await bcrypt.hash("password123", 10);
 
   const admin = await prisma.user.upsert({
     where: { tenantId_email: { tenantId: tenant.id, email: "admin@example.com" } },
@@ -83,13 +83,13 @@ export async function seedTenantAndUsers() {
     },
   });
 
-  const kinoshita = await prisma.user.upsert({
+  const learner2 = await prisma.user.upsert({
     where: { tenantId_email: { tenantId: tenant.id, email: "learner2@example.com" } },
     update: {},
     create: {
       tenantId: tenant.id,
       email: "learner2@example.com",
-      passwordHash: kinoshitaHash,
+      passwordHash: learner2Hash,
       name: "受講者2",
       role: "learner",
       cohortYearId: cohort2025.id,
@@ -97,13 +97,13 @@ export async function seedTenantAndUsers() {
     },
   });
 
-  const okada = await prisma.user.upsert({
+  const learner3 = await prisma.user.upsert({
     where: { tenantId_email: { tenantId: tenant.id, email: "learner3@example.com" } },
     update: {},
     create: {
       tenantId: tenant.id,
       email: "learner3@example.com",
-      passwordHash: okadaHash,
+      passwordHash: learner3Hash,
       name: "受講者3",
       role: "learner",
       cohortYearId: cohort2025.id,
@@ -111,13 +111,13 @@ export async function seedTenantAndUsers() {
     },
   });
 
-  const maita = await prisma.user.upsert({
+  const learner4 = await prisma.user.upsert({
     where: { tenantId_email: { tenantId: tenant.id, email: "learner4@example.com" } },
     update: {},
     create: {
       tenantId: tenant.id,
       email: "learner4@example.com",
-      passwordHash: maitaHash,
+      passwordHash: learner4Hash,
       name: "受講者4",
       role: "learner",
       cohortYearId: cohort2025.id,
@@ -129,12 +129,12 @@ export async function seedTenantAndUsers() {
   console.log(`   管理者:   admin@example.com / password123`);
   console.log(`   講師:     instructor@example.com / password123`);
   console.log(`   受講者:   learner@example.com / password123`);
-  console.log(`   受講者: learner2@example.com / password123`);
-  console.log(`   受講者: learner3@example.com / password123`);
-  console.log(`   受講者: learner4@example.com / password123`);
+  console.log(`   受講者:   learner2@example.com / password123`);
+  console.log(`   受講者:   learner3@example.com / password123`);
+  console.log(`   受講者:   learner4@example.com / password123`);
 
   // 講師 → 受講者の担当割り当て
-  for (const learnerId of [learner.id, kinoshita.id, okada.id, maita.id]) {
+  for (const learnerId of [learner.id, learner2.id, learner3.id, learner4.id]) {
     await prisma.instructorLearner.upsert({
       where: { instructorId_learnerId: { instructorId: instructor.id, learnerId } },
       update: {},
@@ -142,5 +142,5 @@ export async function seedTenantAndUsers() {
     });
   }
 
-  return { tenant, admin, instructor, learner, additionalLearners: [kinoshita, okada, maita] };
+  return { tenant, admin, instructor, learner, additionalLearners: [learner2, learner3, learner4] };
 }

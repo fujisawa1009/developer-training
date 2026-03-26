@@ -10,9 +10,9 @@ seed 実行後に以下のアカウントが作成されます。
 
 | ロール | メールアドレス | パスワード |
 |--------|---------------|----------|
-| 管理者 | admin@example.com | y* |
-| 講師 | instructor@example.com | y* |
-| 受講者 | learner@example.com | y* |
+| 管理者 | admin@example.com | password123 |
+| 講師 | instructor@example.com | password123 |
+| 受講者 | learner@example.com | password123 |
 
 ---
 
