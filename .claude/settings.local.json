@@ -41,7 +41,12 @@
       "Bash(docker ps:*)",
       "Bash(docker compose:*)",
       "Bash(git -C /home/fujisawa/project/developer-training status --short)",
-      "Bash(git -C /home/fujisawa/project/developer-training diff app/package.json)"
+      "Bash(git -C /home/fujisawa/project/developer-training diff app/package.json)",
+      "WebSearch",
+      "WebFetch(domain:aws.amazon.com)",
+      "WebFetch(domain:cloudburn.io)",
+      "WebFetch(domain:go-cloud.io)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
