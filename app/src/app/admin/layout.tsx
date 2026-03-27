@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { BookOpen, ClipboardCheck, ClipboardList, LayoutDashboard, Users, Target, BarChart2, List } from "lucide-react";
+import { BookOpen, Building2, ClipboardCheck, ClipboardList, LayoutDashboard, Users, Target, BarChart2, List } from "lucide-react";
 import { LogoutButton } from "@/components/LogoutButton";
 import { NotificationBell } from "@/components/NotificationBell";
 
@@ -64,6 +64,12 @@ export default async function AdminLayout({
             <SidebarLink href="/admin/users">
               <Users className="w-4 h-4" />
               ユーザー管理
+            </SidebarLink>
+          )}
+          {isAdmin && (
+            <SidebarLink href="/admin/departments">
+              <Building2 className="w-4 h-4" />
+              部署管理
             </SidebarLink>
           )}
         </nav>
