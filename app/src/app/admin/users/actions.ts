@@ -31,6 +31,7 @@ const createUserSchema = z.object({
   password: z.string().min(8, "パスワードは8文字以上で入力してください"),
   role: z.enum(["learner", "instructor", "admin", "hr"]),
   cohortYearId: z.string().optional().nullable(),
+  groupId:      z.string().optional().nullable(),
   departmentId: z.string().optional().nullable(),
 });
 
@@ -40,6 +41,7 @@ const updateUserSchema = z.object({
   password: z.string().optional(), // 空の場合は変更しない
   role: z.enum(["learner", "instructor", "admin", "hr"]),
   cohortYearId: z.string().optional().nullable(),
+  groupId:      z.string().optional().nullable(),
   departmentId: z.string().optional().nullable(),
 });
 
@@ -59,6 +61,7 @@ export async function createUser(
     password:     formData.get("password"),
     role:         formData.get("role"),
     cohortYearId: formData.get("cohortYearId") || null,
+    groupId:      formData.get("groupId") || null,
     departmentId: formData.get("departmentId") || null,
   });
 
@@ -66,7 +69,7 @@ export async function createUser(
     return { errors: parsed.error.flatten().fieldErrors as Record<string, string[]> };
   }
 
-  const { name, email, password, role, cohortYearId, departmentId } = parsed.data;
+  const { name, email, password, role, cohortYearId, groupId, departmentId } = parsed.data;
 
   // メール重複チェック（同テナント内）
   const existing = await prisma.user.findUnique({
@@ -86,6 +89,7 @@ export async function createUser(
       passwordHash,
       role,
       cohortYearId: cohortYearId || null,
+      groupId:      groupId || null,
       departmentId: departmentId || null,
     },
   });
@@ -111,6 +115,7 @@ export async function updateUser(
     password:     formData.get("password") || undefined,
     role:         formData.get("role"),
     cohortYearId: formData.get("cohortYearId") || null,
+    groupId:      formData.get("groupId") || null,
     departmentId: formData.get("departmentId") || null,
   });
 
@@ -118,7 +123,7 @@ export async function updateUser(
     return { errors: parsed.error.flatten().fieldErrors as Record<string, string[]> };
   }
 
-  const { name, email, password, role, cohortYearId, departmentId } = parsed.data;
+  const { name, email, password, role, cohortYearId, groupId, departmentId } = parsed.data;
 
   // 対象ユーザーの存在確認（同テナント内）
   const target = await prisma.user.findFirst({
@@ -144,6 +149,7 @@ export async function updateUser(
     email,
     role,
     cohortYearId: cohortYearId || null,
+    groupId:      groupId || null,
     departmentId: departmentId || null,
   };
   if (password && password.length >= 8) {

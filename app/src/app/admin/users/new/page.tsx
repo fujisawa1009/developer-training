@@ -9,10 +9,14 @@ export default async function NewUserPage() {
   const session = await auth();
   if (!session) return null;
 
-  const [cohortYears, departments] = await Promise.all([
+  const [cohortYears, groups, departments] = await Promise.all([
     prisma.cohortYear.findMany({
       where: { tenantId: session.user.tenantId },
       orderBy: { year: "desc" },
+    }),
+    prisma.group.findMany({
+      where: { tenantId: session.user.tenantId },
+      orderBy: { name: "asc" },
     }),
     prisma.department.findMany({
       where: { tenantId: session.user.tenantId },
@@ -41,6 +45,7 @@ export default async function NewUserPage() {
         <UserForm
           action={createUser}
           cohortYears={cohortYears}
+          groups={groups}
           departments={departments}
           submitLabel="ユーザーを作成する"
         />

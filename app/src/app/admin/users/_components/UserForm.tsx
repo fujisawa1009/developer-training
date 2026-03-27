@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import type { UserFormState } from "../actions";
 
 type CohortYear = { id: string; label: string };
+type Group       = { id: string; name: string };
 type Department  = { id: string; name: string };
 
 type DefaultValues = {
@@ -14,12 +15,14 @@ type DefaultValues = {
   email?:        string;
   role?:         string;
   cohortYearId?: string | null;
+  groupId?:      string | null;
   departmentId?: string | null;
 };
 
 type Props = {
   action:        (prevState: UserFormState, formData: FormData) => Promise<UserFormState>;
   cohortYears:   CohortYear[];
+  groups:        Group[];
   departments:   Department[];
   defaultValues?: DefaultValues;
   isEdit?:       boolean;
@@ -36,6 +39,7 @@ const ROLE_OPTIONS = [
 export function UserForm({
   action,
   cohortYears,
+  groups,
   departments,
   defaultValues,
   isEdit = false,
@@ -140,6 +144,24 @@ export function UserForm({
           {cohortYears.map((c) => (
             <option key={c.id} value={c.id}>
               {c.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* グループ */}
+      <div className="space-y-1.5">
+        <Label htmlFor="groupId">グループ</Label>
+        <select
+          id="groupId"
+          name="groupId"
+          defaultValue={defaultValues?.groupId ?? ""}
+          className="w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors"
+        >
+          <option value="">— 未設定 —</option>
+          {groups.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.name}
             </option>
           ))}
         </select>

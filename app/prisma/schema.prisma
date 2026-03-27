@@ -20,6 +20,7 @@ model Tenant {
 
   users              User[]
   cohortYears        CohortYear[]
+  groups             Group[]
   departments        Department[]
   invites            Invite[]
   curriculumPlans    CurriculumPlan[]
@@ -41,12 +42,14 @@ model User {
   name         String
   role         Role
   cohortYearId String?
+  groupId      String?
   departmentId String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   tenant      Tenant      @relation(fields: [tenantId], references: [id])
   cohortYear  CohortYear? @relation(fields: [cohortYearId], references: [id])
+  group       Group?      @relation(fields: [groupId], references: [id])
   department  Department? @relation(fields: [departmentId], references: [id])
 
   permissionOverrides   UserPermissionOverride[]
@@ -109,6 +112,17 @@ model CohortYear {
   users  User[]
 
   @@unique([tenantId, year])
+}
+
+model Group {
+  id       String @id @default(cuid())
+  tenantId String
+  name     String
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  users  User[]
+
+  @@unique([tenantId, name])
 }
 
 model Department {

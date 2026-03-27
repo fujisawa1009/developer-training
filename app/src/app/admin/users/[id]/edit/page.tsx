@@ -25,11 +25,12 @@ export default async function EditUserPage({ params }: Props) {
   const session = await auth();
   if (!session) return null;
 
-  const [user, cohortYears, departments, allPlans] = await Promise.all([
+  const [user, cohortYears, groups, departments, allPlans] = await Promise.all([
     prisma.user.findFirst({
       where: { id, tenantId: session.user.tenantId },
       include: {
         cohortYear:     true,
+        group:          true,
         department:     true,
         curriculumPlans: { include: { curriculumPlan: true } },
       },
@@ -37,6 +38,10 @@ export default async function EditUserPage({ params }: Props) {
     prisma.cohortYear.findMany({
       where: { tenantId: session.user.tenantId },
       orderBy: { year: "desc" },
+    }),
+    prisma.group.findMany({
+      where: { tenantId: session.user.tenantId },
+      orderBy: { name: "asc" },
     }),
     prisma.department.findMany({
       where: { tenantId: session.user.tenantId },
@@ -87,6 +92,7 @@ export default async function EditUserPage({ params }: Props) {
         <UserForm
           action={boundAction}
           cohortYears={cohortYears}
+          groups={groups}
           departments={departments}
           isEdit
           submitLabel="変更を保存する"
@@ -95,6 +101,7 @@ export default async function EditUserPage({ params }: Props) {
             email:        user.email,
             role:         user.role,
             cohortYearId: user.cohortYearId,
+            groupId:      user.groupId,
             departmentId: user.departmentId,
           }}
         />

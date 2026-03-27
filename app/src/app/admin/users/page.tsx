@@ -29,6 +29,7 @@ export default async function AdminUsersPage() {
     where: { tenantId: session.user.tenantId },
     include: {
       cohortYear:  true,
+      group:       true,
       department:  true,
     },
     orderBy: [{ role: "asc" }, { createdAt: "asc" }],
@@ -85,6 +86,7 @@ export default async function AdminUsersPage() {
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">メールアドレス</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">ロール</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">年度コーホート</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">グループ</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">部署</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">登録日</th>
                 <th className="px-4 py-3 text-right font-medium text-muted-foreground">操作</th>
@@ -107,6 +109,9 @@ export default async function AdminUsersPage() {
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {user.cohortYear?.label ?? "—"}
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    {user.group?.name ?? "—"}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">
                     {user.department?.name ?? "—"}
