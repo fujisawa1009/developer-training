@@ -48,7 +48,8 @@
       "WebFetch(domain:go-cloud.io)",
       "Bash(find:*)",
       "Bash(npx prisma migrate dev:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

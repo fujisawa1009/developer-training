@@ -1,0 +1,8 @@
+{
+  "title": "課題：意思決定と優先順位（意思決定マトリクス・ICEスコア）",
+  "type": "assignment",
+  "order": 14,
+  "assignmentType": "text",
+  "description": "複数の施策候補に対して、意思決定マトリクスとICEスコアを用いて優先順位を決定し、最終的に取るべき施策を論理的に提案してください。",
+  "deadline_days": 7
+}

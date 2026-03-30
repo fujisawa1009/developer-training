@@ -1,0 +1,8 @@
+{
+  "title": "課題：改善計画の立案（PDCA・OKR・KPIツリー）",
+  "type": "assignment",
+  "order": 15,
+  "assignmentType": "text",
+  "description": "サービスの改善テーマを設定し、OKRで目標を定義してKPIツリーに展開し、PDCAサイクルの最初の1Qを具体的に設計してください。",
+  "deadline_days": 7
+}
