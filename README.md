@@ -211,9 +211,123 @@ docker compose exec app npm run import-content
 
 ### マイグレーション（スキーマ変更後）
 
-```bash
-docker compose exec app npx prisma migrate dev --name <変更内容>
+#### 仕組みの概要
+
+`docker compose up` でコンテナが起動すると、**自動的に `prisma migrate deploy` が実行**されます。
+コミット済みのマイグレーションファイルが未適用であれば、起動と同時にDBへ反映されます。
+
 ```
+開発環境: npx prisma migrate deploy  （コンテナ起動時に自動実行）
+本番環境: npx prisma migrate deploy && node server.js  （同様）
+```
+
+#### `migrate dev` と `migrate deploy` の違い
+
+| コマンド | 用途 | 実行場所 |
+|---|---|---|
+| `prisma migrate dev` | マイグレーションファイルを**新規作成**する | 開発環境のみ |
+| `prisma migrate deploy` | 既存のマイグレーションファイルを**適用**する | 本番環境・CI |
+
+> `migrate dev` はスキーマの差分を検出してSQLファイルを生成します。`migrate deploy` はファイルを生成せず、未適用のファイルを順番に実行するだけです。
+
+---
+
+#### 追加開発でスキーマを変更するときの手順
+
+**1. `prisma/schema.prisma` を編集する**
+
+```prisma
+// 例：Userモデルにフィールドを追加
+model User {
+  id        String  @id
+  nickname  String?  // ← 追加
+}
+```
+
+**2. マイグレーションファイルを生成する（開発環境）**
+
+```bash
+docker compose exec app npx prisma migrate dev --name <変更内容の説明>
+# 例:
+docker compose exec app npx prisma migrate dev --name add_nickname_to_user
+```
+
+実行すると `app/prisma/migrations/` 配下にSQLファイルが生成され、開発用DBに即時適用されます。
+
+**3. 生成されたマイグレーションファイルをコミットする**
+
+```bash
+git add app/prisma/migrations/
+git add app/prisma/schema.prisma
+git commit -m "マイグレーション: <変更内容>"
+```
+
+> **重要:** マイグレーションファイルをコミットしないと本番環境に反映されません。
+
+**4. 本番環境にデプロイする**
+
+```bash
+# コードをpull後、コンテナを再起動するだけで自動的にmigrate deployが実行される
+git pull
+docker compose up -d --build
+```
+
+起動ログでマイグレーションの適用を確認できます：
+
+```bash
+docker compose logs app | grep -i migrat
+```
+
+---
+
+#### 本番環境でマイグレーションを実行する前の注意事項
+
+**1. 必ずDBバックアップを取得する**
+
+```bash
+# PostgreSQLのダンプ（本番環境で実行）
+docker compose exec postgres pg_dump -U devtraining devtraining > backup_$(date +%Y%m%d_%H%M%S).sql
+```
+
+**2. 破壊的変更に注意する**
+
+以下の変更はデータ損失のリスクがあります。本番適用前に必ず確認してください。
+
+| 操作 | リスク | 対応方法 |
+|---|---|---|
+| カラム削除 | データが消える | 一時的に `@ignore` でアプリから外してから後で削除 |
+| カラム名変更 | データが消える | 新カラム追加 → データ移行 → 旧カラム削除の3ステップで対応 |
+| `NOT NULL` 制約追加 | 既存データがNULLだと失敗 | デフォルト値を設定するか、先にデータを埋める |
+| テーブル削除 | データが消える | バックアップ必須 |
+
+**3. マイグレーション適用状況を確認する**
+
+```bash
+# 適用済みのマイグレーション一覧を確認
+docker compose exec app npx prisma migrate status
+```
+
+---
+
+#### ロールバックについて
+
+Prismaには自動ロールバック機能がありません。問題が発生した場合は以下の方法で対処します。
+
+**方法1：DBバックアップから復元する**
+
+```bash
+# バックアップから復元（本番環境）
+docker compose exec -T postgres psql -U devtraining devtraining < backup_YYYYMMDD_HHMMSS.sql
+```
+
+**方法2：新しいマイグレーションで打ち消す**
+
+```bash
+# 問題のある変更を元に戻すマイグレーションを作成する
+docker compose exec app npx prisma migrate dev --name revert_<変更内容>
+```
+
+> **推奨:** 本番デプロイ前には必ずバックアップを取得してください。
 
 ---
 
