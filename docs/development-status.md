@@ -1,6 +1,6 @@
 # 開発ロードマップ
 
-> 最終更新日: 2026-03-25
+> 最終更新日: 2026-03-31
 >
 > 仕様の詳細は [spec.md](./design/spec.md) を参照してください。
 
@@ -163,15 +163,41 @@
 - [ ] リセットメール送信
 - [ ] 新パスワード設定画面
 
-### 3-3. カリキュラムAI作成UI / 学習ガイドAI活用（見積: 3-4日）
+### 3-3. レッスンコンテンツ AI作成UI・下書き管理（見積: 4日）
 
-> AI採点 Step 4 に該当。Step 1完了後に着手可能。
+> 詳細設計: [lesson-draft-design.md](./design/lesson-draft-design.md)
 
+#### 設計方針
+- 承認フロー: AIが生成 → 管理者/講師が確認 → 公開（2段階）
+- 公開中レッスンの編集: 一時非公開（`status: draft`）にして編集→再公開
+- 公開履歴は `LessonHistory` にappend-onlyで記録（ロールバックUIは初期実装対象外）
+- AI生成対象: レッスン本文・練習問題（`Assignment.description`）・模範解答（`Assignment.modelAnswer`）
+
+#### Step 1: スキーマ変更（見積: 0.5日）
+- [ ] `Lesson` モデルに `status / draftBody / draftDescription / draftModelAnswer / generatedBy` を追加
+- [ ] `LessonHistory` モデルを新規追加（lessonId / version / body / description / modelAnswer / publishedAt / publishedById）
+- [ ] `User` モデルに `lessonHistories` リレーションを追加
+- [ ] マイグレーション実行（既存レッスンは `status: published` デフォルト値で互換）
+
+#### Step 2: 公開・一時非公開制御（見積: 1日）
+- [ ] `publishLesson` / `unpublishLesson` Server Action の実装
+- [ ] 学習者向けレッスン取得クエリに `where: { status: 'published' }` を追加
+- [ ] 管理者レッスン詳細ページに「一時非公開にして編集」「再公開」ボタンを追加
+- [ ] 下書き状態の警告バナーを追加
+
+#### Step 3: AI生成UI（見積: 2日）
+- [ ] `generateLessonDraft` Server Action の実装（Bedrock呼び出し）
+- [ ] AI生成モーダルの実装（生成対象・テーマ・難易度）
+- [ ] 下書きプレビュー・手動編集エリアの実装
+- [ ] `saveLessonDraft` Server Action の実装
+
+#### Step 4: 履歴管理（見積: 0.5日）
+- [ ] `publishLesson` 時に `LessonHistory` へのレコード追加
+- [ ] 管理者レッスン詳細ページに「編集履歴」タブを追加（バージョン・公開日時・公開者の一覧）
+
+#### 別途対応（3-3 完了後）
 - [ ] カリキュラムコンテンツのベクトル化（import-content時に自動生成）
 - [ ] 学習ガイドのAI質問応答（受講者が質問→RAG検索→AI回答）
-- [ ] 講師がUI上からAIを使ってカリキュラムを作成できる仕組み
-- [ ] AI生成コンテンツのプレビュー・編集
-- [ ] 生成したコンテンツのインポート・公開フロー
 
 ### 3-4. 課題の締め切り管理
 
@@ -269,3 +295,5 @@
 | 2026-03-25 | development-status.md を最新コミットに追従（練習問題・模範解答追加を反映） |
 | 2026-03-20 | 環境整備: COMPOSE_FILEによるローカル/本番切り替え、本番DB永続化（バインドマウント）、README整理 |
 | 2026-03-20 | 課題追加: 通知バグ、seedデータ重複、グループ管理改修、ロール管理、部署管理、CSV改善、スキーマ先行整備 |
+| 2026-03-31 | 3-3 を「レッスンコンテンツ AI作成UI・下書き管理」として詳細化（設計ドキュメント lesson-draft-design.md 追加） |
+| 2026-03-31 | フレームワーク思考カリキュラム 01〜11 の練習問題・模範解答を追加（assignments/ + model-answers/）|
