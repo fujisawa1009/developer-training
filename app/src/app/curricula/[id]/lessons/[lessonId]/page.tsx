@@ -176,6 +176,8 @@ export default async function LessonDetailPage({ params }: Props) {
                   startAction={startAssignmentBound!}
                   submitAction={submitActionBound}
                   isCompleted={isCompleted}
+                  description={lesson.assignment.description}
+                  modelAnswer={lesson.assignment.modelAnswer ?? undefined}
                 />
                 {commentActionBound && commentableSubmission && (
                   <CommentThread
@@ -243,6 +245,7 @@ export default async function LessonDetailPage({ params }: Props) {
               startAction={startAssignmentBound!}
               submitAction={submitActionBound}
               isCompleted={isCompleted}
+              modelAnswer={lesson.assignment.modelAnswer ?? undefined}
             />
 
             {/* コメントスレッド */}

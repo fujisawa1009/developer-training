@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, XCircle, Clock, Hash, Play, RefreshCw } from "lucide-react";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import type { SubmitFormState } from "../../../../actions";
 
 type Submission = {
@@ -38,6 +39,8 @@ type Props = {
   startAction: () => Promise<void>;
   submitAction: ((prevState: SubmitFormState, formData: FormData) => Promise<SubmitFormState>) | null;
   isCompleted: boolean;
+  description?: string;
+  modelAnswer?: string;
 };
 
 function formatDuration(startedAt: Date, submittedAt: Date | null): string {
@@ -165,20 +168,39 @@ export function AssignmentSection({
   startAction,
   submitAction,
   isCompleted,
+  description,
+  modelAnswer,
 }: Props) {
   const [isPending, startTransition] = useTransition();
+
+  const descriptionBlock = description ? (
+    <div className="rounded-lg border bg-white p-6">
+      <MarkdownRenderer content={description} />
+    </div>
+  ) : null;
 
   // 合格済み
   if (isCompleted) {
     return (
-      <div className="rounded-lg border border-green-200 bg-green-50 p-6 space-y-3">
-        <div className="flex items-center gap-2 text-green-700">
-          <CheckCircle2 className="w-5 h-5" />
-          <span className="font-semibold">この課題は合格済みです</span>
+      <div className="space-y-4">
+        {descriptionBlock}
+        <div className="rounded-lg border border-green-200 bg-green-50 p-6 space-y-3">
+          <div className="flex items-center gap-2 text-green-700">
+            <CheckCircle2 className="w-5 h-5" />
+            <span className="font-semibold">この課題は合格済みです</span>
+          </div>
+          {latestSubmission?.review?.instructorComment && (
+            <div className="rounded-md bg-white border p-3 text-sm whitespace-pre-wrap">
+              {latestSubmission.review.instructorComment}
+            </div>
+          )}
         </div>
-        {latestSubmission?.review?.instructorComment && (
-          <div className="rounded-md bg-white border p-3 text-sm whitespace-pre-wrap">
-            {latestSubmission.review.instructorComment}
+        {modelAnswer && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 space-y-3">
+            <h3 className="font-semibold text-amber-800">模範解答</h3>
+            <div className="text-sm">
+              <MarkdownRenderer content={modelAnswer} />
+            </div>
           </div>
         )}
       </div>
@@ -188,32 +210,35 @@ export function AssignmentSection({
   // 採点待ち
   if (latestSubmission?.status === "submitted") {
     return (
-      <div className="rounded-lg border border-blue-200 bg-blue-50 p-6 space-y-3">
-        <div className="flex items-center gap-2 text-blue-700">
-          <Clock className="w-5 h-5" />
-          <span className="font-semibold">提出済み・採点待ち</span>
+      <div className="space-y-4">
+        {descriptionBlock}
+        <div className="rounded-lg border border-blue-200 bg-blue-50 p-6 space-y-3">
+          <div className="flex items-center gap-2 text-blue-700">
+            <Clock className="w-5 h-5" />
+            <span className="font-semibold">提出済み・採点待ち</span>
+          </div>
+          <div className="text-sm text-blue-600 space-y-1">
+            <p>第 {latestSubmission.attemptNumber} 回目の提出</p>
+            <p>取り組み時間: {formatDuration(latestSubmission.startedAt, latestSubmission.submittedAt)}</p>
+          </div>
+          <div className="rounded-md bg-white border p-3 space-y-2 text-sm">
+            {latestSubmission.githubUrl && (
+              <p>
+                <span className="text-muted-foreground">GitHub URL: </span>
+                <a href={latestSubmission.githubUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all">
+                  {latestSubmission.githubUrl}
+                </a>
+              </p>
+            )}
+            {latestSubmission.textAnswer && (
+              <div>
+                <p className="text-muted-foreground mb-1">テキスト回答:</p>
+                <pre className="whitespace-pre-wrap font-sans">{latestSubmission.textAnswer}</pre>
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">講師の採点をお待ちください</p>
         </div>
-        <div className="text-sm text-blue-600 space-y-1">
-          <p>第 {latestSubmission.attemptNumber} 回目の提出</p>
-          <p>取り組み時間: {formatDuration(latestSubmission.startedAt, latestSubmission.submittedAt)}</p>
-        </div>
-        <div className="rounded-md bg-white border p-3 space-y-2 text-sm">
-          {latestSubmission.githubUrl && (
-            <p>
-              <span className="text-muted-foreground">GitHub URL: </span>
-              <a href={latestSubmission.githubUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all">
-                {latestSubmission.githubUrl}
-              </a>
-            </p>
-          )}
-          {latestSubmission.textAnswer && (
-            <div>
-              <p className="text-muted-foreground mb-1">テキスト回答:</p>
-              <pre className="whitespace-pre-wrap font-sans">{latestSubmission.textAnswer}</pre>
-            </div>
-          )}
-        </div>
-        <p className="text-xs text-muted-foreground">講師の採点をお待ちください</p>
       </div>
     );
   }
@@ -222,6 +247,7 @@ export function AssignmentSection({
   if (latestSubmission?.status === "failed") {
     return (
       <div className="space-y-4">
+        {descriptionBlock}
         {/* 不合格フィードバック */}
         <div className="rounded-lg border border-red-200 bg-red-50 p-6 space-y-3">
           <div className="flex items-center gap-2 text-red-700">
@@ -273,39 +299,45 @@ export function AssignmentSection({
   // 取り組み中（draft）→ 提出フォーム表示
   if (draftSubmission) {
     return (
-      <div className="rounded-lg border bg-white p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h2 className="font-semibold">第 {draftSubmission.attemptNumber} 回目の回答</h2>
-            <Badge variant="secondary" className="gap-1">
-              <Clock className="w-3 h-3" />
-              {formatDuration(draftSubmission.startedAt, null)}
-            </Badge>
+      <div className="space-y-4">
+        {descriptionBlock}
+        <div className="rounded-lg border bg-white p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h2 className="font-semibold">第 {draftSubmission.attemptNumber} 回目の回答</h2>
+              <Badge variant="secondary" className="gap-1">
+                <Clock className="w-3 h-3" />
+                {formatDuration(draftSubmission.startedAt, null)}
+              </Badge>
+            </div>
           </div>
+          <SubmitForm
+            assignmentType={assignment.type}
+            allowPaste={assignment.allowPaste}
+            submitAction={submitAction!}
+          />
         </div>
-        <SubmitForm
-          assignmentType={assignment.type}
-          allowPaste={assignment.allowPaste}
-          submitAction={submitAction!}
-        />
       </div>
     );
   }
 
   // まだ開始していない
   return (
-    <div className="rounded-lg border bg-white p-6 text-center space-y-4">
-      <p className="text-muted-foreground text-sm">
-        「開始」ボタンを押すと課題が始まります。開始から提出までの時間が記録されます。
-      </p>
-      <Button
-        onClick={() => startTransition(() => startAction())}
-        disabled={isPending}
-        className="gap-2"
-      >
-        <Play className="w-4 h-4" />
-        {isPending ? "開始中..." : "課題を開始する"}
-      </Button>
+    <div className="space-y-4">
+      {descriptionBlock}
+      <div className="rounded-lg border bg-white p-6 text-center space-y-4">
+        <p className="text-muted-foreground text-sm">
+          「開始」ボタンを押すと課題が始まります。開始から提出までの時間が記録されます。
+        </p>
+        <Button
+          onClick={() => startTransition(() => startAction())}
+          disabled={isPending}
+          className="gap-2"
+        >
+          <Play className="w-4 h-4" />
+          {isPending ? "開始中..." : "課題を開始する"}
+        </Button>
+      </div>
     </div>
   );
 }

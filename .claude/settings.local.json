@@ -49,7 +49,8 @@
       "Bash(find:*)",
       "Bash(npx prisma migrate dev:*)",
       "Bash(npx tsc:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npx prisma generate:*)"
     ],
     "deny": [],
     "ask": []
