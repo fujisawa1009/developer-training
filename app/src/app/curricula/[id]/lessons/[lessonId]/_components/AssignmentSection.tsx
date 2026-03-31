@@ -1,11 +1,11 @@
 "use client";
 
-import { useActionState, useTransition } from "react";
+import { useActionState, useTransition, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, XCircle, Clock, Hash, Play, RefreshCw } from "lucide-react";
+import { CheckCircle2, XCircle, Clock, Hash, Play, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import type { SubmitFormState } from "../../../../actions";
 
@@ -60,6 +60,51 @@ function formatDuration(startedAt: Date, submittedAt: Date | null): string {
   const minutes = totalMinutes % 60;
   if (hours > 0) return `${hours}時間${minutes > 0 ? `${minutes}分` : ""}`;
   return `${minutes}分`;
+}
+
+// 提出した回答の折りたたみ表示
+function AnswerCollapsible({ submission }: { submission: Submission }) {
+  const [open, setOpen] = useState(false);
+
+  if (!submission.textAnswer && !submission.githubUrl) return null;
+
+  return (
+    <div className="rounded-md border bg-white overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium hover:bg-gray-50 transition-colors"
+      >
+        <span>提出した回答を確認する</span>
+        {open ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+      </button>
+      {open && (
+        <div className="px-4 pb-4 space-y-3 text-sm border-t pt-3">
+          {submission.githubUrl && (
+            <div>
+              <p className="text-muted-foreground mb-1">GitHub URL:</p>
+              <a
+                href={submission.githubUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline break-all"
+              >
+                {submission.githubUrl}
+              </a>
+            </div>
+          )}
+          {submission.textAnswer && (
+            <div>
+              <p className="text-muted-foreground mb-1">テキスト回答:</p>
+              <pre className="whitespace-pre-wrap font-sans bg-gray-50 rounded p-3 text-sm leading-relaxed">
+                {submission.textAnswer}
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 // 課題提出フォーム
@@ -195,6 +240,7 @@ export function AssignmentSection({
             </div>
           )}
         </div>
+        {latestSubmission && <AnswerCollapsible submission={latestSubmission} />}
         {modelAnswer && (
           <div className="rounded-lg border border-amber-200 bg-amber-50 p-6 space-y-3">
             <h3 className="font-semibold text-amber-800">模範解答</h3>
@@ -263,6 +309,7 @@ export function AssignmentSection({
             </div>
           )}
         </div>
+        <AnswerCollapsible submission={latestSubmission} />
 
         {/* 過去の提出一覧 */}
         <div className="rounded-lg border bg-white p-4 space-y-2">
