@@ -206,6 +206,13 @@ docker compose exec app npm run seed:demo
 `content/` 以下のファイルを編集後:
 
 ```bash
+## コンテンツ変更のみ
+git pull                                                                                                                
+docker compose exec app npm run import-content
+
+## スキーマ変更（migrationあり）の場合は先に
+git pull
+docker compose exec app npx prisma migrate deploy
 docker compose exec app npm run import-content
 ```
 
