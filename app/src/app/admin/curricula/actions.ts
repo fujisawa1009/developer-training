@@ -327,6 +327,164 @@ export async function deleteLesson(lessonId: string, curriculumId: string) {
 // レッスン並び替え
 // ─────────────────────────────────────────
 
+// ─────────────────────────────────────────
+// レッスン公開・一時非公開
+// ─────────────────────────────────────────
+
+export async function publishLesson(lessonId: string, curriculumId: string) {
+  const session = await requireAdminOrInstructor();
+
+  const lesson = await prisma.lesson.findFirst({
+    where: { id: lessonId, curriculum: { tenantId: session.user.tenantId } },
+    include: { assignment: true },
+  });
+  if (!lesson) throw new Error("レッスンが見つかりません");
+
+  // draft フィールドの内容を本番フィールドへ昇格
+  const updateData: Record<string, unknown> = { status: "published" };
+  if (lesson.draftBody !== null) {
+    updateData.body = lesson.draftBody;
+    updateData.draftBody = null;
+  }
+  if (lesson.draftDescription !== null && lesson.assignment) {
+    await prisma.assignment.update({
+      where: { id: lesson.assignment.id },
+      data: { description: lesson.draftDescription },
+    });
+    updateData.draftDescription = null;
+  }
+  if (lesson.draftModelAnswer !== null && lesson.assignment) {
+    await prisma.assignment.update({
+      where: { id: lesson.assignment.id },
+      data: { modelAnswer: lesson.draftModelAnswer },
+    });
+    updateData.draftModelAnswer = null;
+  }
+
+  // LessonHistory に記録
+  const lastHistory = await prisma.lessonHistory.findFirst({
+    where: { lessonId },
+    orderBy: { version: "desc" },
+    select: { version: true },
+  });
+  const nextVersion = (lastHistory?.version ?? 0) + 1;
+
+  await prisma.$transaction([
+    prisma.lesson.update({ where: { id: lessonId }, data: updateData }),
+    prisma.lessonHistory.create({
+      data: {
+        lessonId,
+        version: nextVersion,
+        body: (updateData.body as string | undefined) ?? lesson.body,
+        description: lesson.assignment?.description ?? null,
+        modelAnswer: lesson.assignment?.modelAnswer ?? null,
+        publishedById: session.user.id,
+      },
+    }),
+  ]);
+
+  revalidatePath(`/admin/curricula/${curriculumId}/lessons/${lessonId}`);
+  revalidatePath(`/admin/curricula/${curriculumId}`);
+}
+
+export async function unpublishLesson(lessonId: string, curriculumId: string) {
+  const session = await requireAdminOrInstructor();
+
+  const lesson = await prisma.lesson.findFirst({
+    where: { id: lessonId, curriculum: { tenantId: session.user.tenantId } },
+    include: { assignment: true },
+  });
+  if (!lesson) throw new Error("レッスンが見つかりません");
+
+  // 現在の本文・練習問題・模範解答を draft フィールドにコピー
+  await prisma.lesson.update({
+    where: { id: lessonId },
+    data: {
+      status: "draft",
+      draftBody: lesson.body ?? null,
+      draftDescription: lesson.assignment?.description ?? null,
+      draftModelAnswer: lesson.assignment?.modelAnswer ?? null,
+    },
+  });
+
+  revalidatePath(`/admin/curricula/${curriculumId}/lessons/${lessonId}`);
+  revalidatePath(`/admin/curricula/${curriculumId}`);
+}
+
+export async function saveLessonDraft(
+  lessonId: string,
+  curriculumId: string,
+  fields: {
+    draftBody?: string | null;
+    draftDescription?: string | null;
+    draftModelAnswer?: string | null;
+    generatedBy?: "ai" | "human";
+  }
+) {
+  const session = await requireAdminOrInstructor();
+
+  const lesson = await prisma.lesson.findFirst({
+    where: { id: lessonId, curriculum: { tenantId: session.user.tenantId } },
+  });
+  if (!lesson) throw new Error("レッスンが見つかりません");
+
+  await prisma.lesson.update({
+    where: { id: lessonId },
+    data: {
+      status: "draft",
+      ...(fields.draftBody !== undefined && { draftBody: fields.draftBody }),
+      ...(fields.draftDescription !== undefined && { draftDescription: fields.draftDescription }),
+      ...(fields.draftModelAnswer !== undefined && { draftModelAnswer: fields.draftModelAnswer }),
+      ...(fields.generatedBy !== undefined && { generatedBy: fields.generatedBy }),
+    },
+  });
+
+  revalidatePath(`/admin/curricula/${curriculumId}/lessons/${lessonId}`);
+}
+
+export async function generateLessonDraft(
+  lessonId: string,
+  curriculumId: string,
+  params: {
+    target: "body" | "description" | "modelAnswer" | "all";
+    instruction: string;
+    difficulty: "beginner" | "intermediate" | "advanced";
+    lessonTitle: string;
+  }
+): Promise<{ body?: string; description?: string; modelAnswer?: string }> {
+  const session = await requireAdminOrInstructor();
+
+  const lesson = await prisma.lesson.findFirst({
+    where: { id: lessonId, curriculum: { tenantId: session.user.tenantId } },
+    include: { assignment: true },
+  });
+  if (!lesson) throw new Error("レッスンが見つかりません");
+
+  const { invokeClaude } = await import("@/lib/bedrock");
+
+  const difficultyLabel = { beginner: "初級", intermediate: "中級", advanced: "上級" }[params.difficulty];
+  const systemPrompt = `あなたは技術研修の教材を作成する専門家です。指示に従ってMarkdown形式で教材コンテンツを生成してください。難易度: ${difficultyLabel}。簡潔で実践的な内容にしてください。`;
+
+  const result: { body?: string; description?: string; modelAnswer?: string } = {};
+
+  if (params.target === "body" || params.target === "all") {
+    const userMessage = `レッスン「${params.lessonTitle}」の本文をMarkdownで作成してください。\n\n追加指示: ${params.instruction}`;
+    result.body = await invokeClaude(systemPrompt, userMessage);
+  }
+
+  if (params.target === "description" || params.target === "all") {
+    const userMessage = `レッスン「${params.lessonTitle}」の練習問題の説明文を作成してください。\n\n追加指示: ${params.instruction}`;
+    result.description = await invokeClaude(systemPrompt, userMessage);
+  }
+
+  if (params.target === "modelAnswer" || params.target === "all") {
+    const userMessage = `レッスン「${params.lessonTitle}」の練習問題の模範解答をMarkdownで作成してください。\n\n追加指示: ${params.instruction}`;
+    result.modelAnswer = await invokeClaude(systemPrompt, userMessage);
+  }
+
+  return result;
+}
+
 export async function reorderLessons(curriculumId: string, orderedIds: string[]) {
   const session = await requireAdminOrInstructor();
 

@@ -98,6 +98,7 @@ export default async function AdminCurriculumDetailPage({ params }: Props) {
               title: l.title,
               type: l.type,
               slug: l.slug,
+              status: l.status as "published" | "draft",
             }))}
           />
         )}

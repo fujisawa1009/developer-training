@@ -163,7 +163,7 @@
 - [ ] リセットメール送信
 - [ ] 新パスワード設定画面
 
-### 3-3. レッスンコンテンツ AI作成UI・下書き管理（見積: 4日）
+### 3-3. レッスンコンテンツ AI作成UI・下書き管理（見積: 4日） ✅ 完了
 
 > 詳細設計: [lesson-draft-design.md](./design/lesson-draft-design.md)
 
@@ -173,27 +173,27 @@
 - 公開履歴は `LessonHistory` にappend-onlyで記録（ロールバックUIは初期実装対象外）
 - AI生成対象: レッスン本文・練習問題（`Assignment.description`）・模範解答（`Assignment.modelAnswer`）
 
-#### Step 1: スキーマ変更（見積: 0.5日）
-- [ ] `Lesson` モデルに `status / draftBody / draftDescription / draftModelAnswer / generatedBy` を追加
-- [ ] `LessonHistory` モデルを新規追加（lessonId / version / body / description / modelAnswer / publishedAt / publishedById）
-- [ ] `User` モデルに `lessonHistories` リレーションを追加
-- [ ] マイグレーション実行（既存レッスンは `status: published` デフォルト値で互換）
+#### Step 1: スキーマ変更（見積: 0.5日） ✅ 完了
+- [x] `Lesson` モデルに `status / draftBody / draftDescription / draftModelAnswer / generatedBy` を追加
+- [x] `LessonHistory` モデルを新規追加（lessonId / version / body / description / modelAnswer / publishedAt / publishedById）
+- [x] `User` モデルに `lessonHistories` リレーションを追加
+- [x] マイグレーション実行（既存レッスンは `status: published` デフォルト値で互換）
 
-#### Step 2: 公開・一時非公開制御（見積: 1日）
-- [ ] `publishLesson` / `unpublishLesson` Server Action の実装
-- [ ] 学習者向けレッスン取得クエリに `where: { status: 'published' }` を追加
-- [ ] 管理者レッスン詳細ページに「一時非公開にして編集」「再公開」ボタンを追加
-- [ ] 下書き状態の警告バナーを追加
+#### Step 2: 公開・一時非公開制御（見積: 1日） ✅ 完了
+- [x] `publishLesson` / `unpublishLesson` Server Action の実装
+- [x] 学習者向けレッスン取得クエリに `where: { status: 'published' }` を追加
+- [x] 管理者レッスン詳細ページに「一時非公開にして編集」「再公開」ボタンを追加
+- [x] 下書き状態の警告バナーを追加
 
-#### Step 3: AI生成UI（見積: 2日）
-- [ ] `generateLessonDraft` Server Action の実装（Bedrock呼び出し）
-- [ ] AI生成モーダルの実装（生成対象・テーマ・難易度）
-- [ ] 下書きプレビュー・手動編集エリアの実装
-- [ ] `saveLessonDraft` Server Action の実装
+#### Step 3: AI生成UI（見積: 2日） ✅ 完了
+- [x] `generateLessonDraft` Server Action の実装（Bedrock呼び出し）
+- [x] AI生成モーダルの実装（生成対象・テーマ・難易度）
+- [x] 下書きプレビュー・手動編集エリアの実装（DraftEditor コンポーネント）
+- [x] `saveLessonDraft` Server Action の実装
 
-#### Step 4: 履歴管理（見積: 0.5日）
-- [ ] `publishLesson` 時に `LessonHistory` へのレコード追加
-- [ ] 管理者レッスン詳細ページに「編集履歴」タブを追加（バージョン・公開日時・公開者の一覧）
+#### Step 4: 履歴管理（見積: 0.5日） ✅ 完了
+- [x] `publishLesson` 時に `LessonHistory` へのレコード追加
+- [x] 管理者レッスン詳細ページに「編集履歴」タブを追加（バージョン・公開日時・公開者の一覧）
 
 #### 別途対応（3-3 完了後）
 - [ ] カリキュラムコンテンツのベクトル化（import-content時に自動生成）
@@ -297,3 +297,4 @@
 | 2026-03-20 | 課題追加: 通知バグ、seedデータ重複、グループ管理改修、ロール管理、部署管理、CSV改善、スキーマ先行整備 |
 | 2026-03-31 | 3-3 を「レッスンコンテンツ AI作成UI・下書き管理」として詳細化（設計ドキュメント lesson-draft-design.md 追加） |
 | 2026-03-31 | フレームワーク思考カリキュラム 01〜11 の練習問題・模範解答を追加（assignments/ + model-answers/）|
+| 2026-04-01 | 3-3 全Step完了（スキーマ変更・マイグレーション、公開/非公開制御、AI生成UI・下書き保存、編集履歴管理） |

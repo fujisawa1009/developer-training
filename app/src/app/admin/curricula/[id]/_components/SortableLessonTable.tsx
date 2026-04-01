@@ -38,6 +38,7 @@ type Lesson = {
   title: string;
   type: "text" | "video" | "assignment";
   slug: string;
+  status: "published" | "draft";
 };
 
 type Props = {
@@ -90,7 +91,16 @@ export function SortableLessonTable({ curriculumId, initialLessons }: Props) {
                 return (
                   <SortableRow key={lesson.id} id={lesson.id}>
                     <td className="px-4 py-3 text-muted-foreground">{index + 1}</td>
-                    <td className="px-4 py-3 font-medium">{lesson.title}</td>
+                    <td className="px-4 py-3 font-medium">
+                      <div className="flex items-center gap-2">
+                        {lesson.title}
+                        {lesson.status === "draft" && (
+                          <Badge variant="outline" className="text-xs border-amber-400 text-amber-700 bg-amber-50">
+                            下書き
+                          </Badge>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 py-3">
                       <Badge variant="secondary" className="gap-1">
                         <Icon className="w-3 h-3" />

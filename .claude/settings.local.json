@@ -50,7 +50,14 @@
       "Bash(npx prisma migrate dev:*)",
       "Bash(npx tsc:*)",
       "Bash(cat:*)",
-      "Bash(npx prisma generate:*)"
+      "Bash(npx prisma generate:*)",
+      "Bash(git -C /home/fujisawa/project/developer-training log --oneline -10)",
+      "Bash(git -C /home/fujisawa/project/developer-training log --oneline -5 --format=\"%h %s %ad\" --date=short)",
+      "Bash(DATABASE_URL=postgresql://devtraining:devtraining@localhost:5432/devtraining npx prisma migrate:*)",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(DATABASE_URL=postgresql://devtraining:devtraining@localhost:5432/devtraining npx prisma generate:*)",
+      "Bash(git -C /home/fujisawa/project/developer-training add -A)",
+      "Bash(git -C /home/fujisawa/project/developer-training status)"
     ],
     "deny": [],
     "ask": []

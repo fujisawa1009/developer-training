@@ -43,6 +43,8 @@ export default async function CurriculumDetailPage({ params }: Props) {
     where: { id },
     include: {
       lessons: {
+        // 学習者には published レッスンのみ表示
+        where: role !== "admin" && role !== "instructor" ? { status: "published" } : {},
         orderBy: { order: "asc" },
         include: {
           progresses: { where: { learnerId: session.user.id } },

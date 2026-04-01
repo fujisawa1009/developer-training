@@ -63,6 +63,7 @@ model User {
   submissions           Submission[]
   submissionComments    SubmissionComment[]
   lessonProgresses      LessonProgress[]
+  lessonHistories       LessonHistory[]
 
   @@unique([tenantId, email])
 }
@@ -444,9 +445,18 @@ model Lesson {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
-  curriculum Curriculum  @relation(fields: [curriculumId], references: [id])
-  assignment Assignment? @relation(fields: [assignmentId], references: [id])
+  // ── 下書き管理 ────────────────────────────────
+  status           LessonStatus @default(published)
+  draftBody        String?      // 下書き中の本文
+  draftDescription String?      // 下書き中の練習問題説明
+  draftModelAnswer String?      // 下書き中の模範解答
+  generatedBy      GeneratedBy? // コンテンツの生成元（ai / human）
+  // ─────────────────────────────────────────────
+
+  curriculum Curriculum    @relation(fields: [curriculumId], references: [id])
+  assignment Assignment?   @relation(fields: [assignmentId], references: [id])
   progresses LessonProgress[]
+  histories  LessonHistory[]
 
   @@unique([curriculumId, slug])
 }
@@ -455,6 +465,32 @@ enum LessonType {
   text        // Markdownテキスト
   video       // 外部動画リンク
   assignment  // 課題テスト
+}
+
+enum LessonStatus {
+  published  // 公開中（学習者から閲覧可能）
+  draft      // 下書き（学習者から非表示）
+}
+
+enum GeneratedBy {
+  ai     // AI生成
+  human  // 手動作成
+}
+
+model LessonHistory {
+  id            String   @id @default(cuid())
+  lessonId      String
+  version       Int      // 公開回数（1始まりで自動採番）
+  body          String?  // 公開時の本文スナップショット
+  description   String?  // 公開時の練習問題スナップショット
+  modelAnswer   String?  // 公開時の模範解答スナップショット
+  publishedAt   DateTime @default(now())
+  publishedById String
+
+  lesson      Lesson @relation(fields: [lessonId], references: [id])
+  publishedBy User   @relation(fields: [publishedById], references: [id])
+
+  @@unique([lessonId, version])
 }
 
 // ─────────────────────────────────────────

@@ -32,9 +32,13 @@ export default async function LessonDetailPage({ params }: Props) {
   const session = await auth();
   if (!session) return null;
 
-  // レッスン取得
+  // レッスン取得（下書きは学習者から非表示）
+  const role = session.user.role as string;
   const lesson = await prisma.lesson.findUnique({
-    where: { id: lessonId },
+    where: {
+      id: lessonId,
+      ...(role !== "admin" && role !== "instructor" ? { status: "published" } : {}),
+    },
     include: {
       curriculum: true,
       progresses: { where: { learnerId: session.user.id } },
@@ -59,7 +63,6 @@ export default async function LessonDetailPage({ params }: Props) {
   if (!lesson || lesson.curriculumId !== curriculumId) notFound();
 
   // アクセス権確認
-  const role = session.user.role as string;
   if (role !== "admin" && role !== "instructor") {
     const access = await prisma.userCurriculumPlan.findFirst({
       where: {
@@ -70,9 +73,12 @@ export default async function LessonDetailPage({ params }: Props) {
     if (!access) notFound();
   }
 
-  // ロック確認
+  // ロック確認（学習者には published レッスンのみ表示）
   const allLessons = await prisma.lesson.findMany({
-    where: { curriculumId },
+    where: {
+      curriculumId,
+      ...(role !== "admin" && role !== "instructor" ? { status: "published" } : {}),
+    },
     orderBy: { order: "asc" },
     include: { progresses: { where: { learnerId: session.user.id } } },
   });
