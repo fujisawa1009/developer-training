@@ -349,6 +349,7 @@ describe("updateLesson", () => {
     mockAuth.mockResolvedValue(defaultAdminSession);
     mockPrisma.lesson.findFirst.mockResolvedValue({
       id: "les-1",
+      type: "assignment",
       assignmentId: "assign-1",
       assignment: { id: "assign-1" },
     });

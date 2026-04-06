@@ -127,19 +127,34 @@ export function LessonForm({ action, defaultValues, submitLabel = "レッスン�
 
       {/* テキストレッスン */}
       {lessonType === "text" && (
-        <div className="space-y-1.5">
-          <Label htmlFor="body">本文（Markdown）*</Label>
-          <textarea
-            id="body"
-            name="body"
-            rows={12}
-            defaultValue={defaultValues?.body ?? ""}
-            placeholder="## 見出し&#10;&#10;本文をMarkdownで記述..."
-            className="w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm font-mono outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors resize-y"
-            aria-invalid={!!state?.errors?.body}
-          />
-          {state?.errors?.body && (
-            <p className="text-xs text-destructive">{state.errors.body.join(", ")}</p>
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label htmlFor="body">本文（Markdown）*</Label>
+            <textarea
+              id="body"
+              name="body"
+              rows={12}
+              defaultValue={defaultValues?.body ?? ""}
+              placeholder="## 見出し&#10;&#10;本文をMarkdownで記述..."
+              className="w-full rounded-lg border border-input bg-transparent px-2.5 py-2 text-sm font-mono outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 transition-colors resize-y"
+              aria-invalid={!!state?.errors?.body}
+            />
+            {state?.errors?.body && (
+              <p className="text-xs text-destructive">{state.errors.body.join(", ")}</p>
+            )}
+          </div>
+          {/* 練習問題が紐づいているテキストレッスンのみペースト設定を表示 */}
+          {defaultValues?.assignmentType && (
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                name="allowPaste"
+                value="on"
+                defaultChecked={defaultValues?.allowPaste ?? false}
+                className="w-4 h-4 rounded border-input"
+              />
+              <span className="text-sm">ペースト許可（GitHub URLなどの貼り付けが必要な課題）</span>
+            </label>
           )}
         </div>
       )}

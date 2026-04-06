@@ -60,6 +60,7 @@ export default async function EditLessonPage({ params }: Props) {
           assignmentType: lesson.assignment?.type as AssignmentType | null,
           assignmentDescription: lesson.assignment?.description ?? null,
           modelAnswer: lesson.assignment?.modelAnswer ?? null,
+          allowPaste: lesson.assignment?.allowPaste ?? null,
         }}
       />
     </div>

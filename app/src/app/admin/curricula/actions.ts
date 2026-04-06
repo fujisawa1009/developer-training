@@ -292,10 +292,27 @@ export async function updateLesson(
       data: { title, slug, order, type: "assignment" },
     });
   } else if (type === "text") {
+    // assignment → text の切り替え時のみ assignmentId をクリア
+    const wasAssignment = lesson.type === "assignment";
     await prisma.lesson.update({
       where: { id: lessonId },
-      data: { title, slug, order, type: "text", body: body ?? "", videoUrl: null, assignmentId: null },
+      data: {
+        title,
+        slug,
+        order,
+        type: "text",
+        body: body ?? "",
+        videoUrl: null,
+        ...(wasAssignment ? { assignmentId: null } : {}),
+      },
     });
+    // text レッスンに練習問題が紐づいている場合は allowPaste を更新
+    if (lesson.assignmentId && !wasAssignment) {
+      await prisma.assignment.update({
+        where: { id: lesson.assignmentId },
+        data: { allowPaste },
+      });
+    }
   } else {
     if (!videoUrl) {
       return { errors: { videoUrl: ["動画URLは必須です"] } };
