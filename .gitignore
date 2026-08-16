@@ -5,3 +5,4 @@
 
 # Docker volumes (bind mount data)
 data/
+.DS_Store
